@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui.viewbinding)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -69,5 +70,9 @@ dependencies {
 
     implementation(libs.androidx.webkit)
     implementation(libs.okhttp)
-
+    implementation(libs.androidx.navigation)
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.lifecycle)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.fragment)
 }
