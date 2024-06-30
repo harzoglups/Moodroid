@@ -1,5 +1,6 @@
 package com.moode.android
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.KeyEvent
 import android.webkit.WebSettings
@@ -15,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import kotlin.concurrent.thread
 import java.io.IOException
+import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
     private val client = OkHttpClient()
@@ -28,17 +29,19 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        when (keyCode) {
+        val volumeCommand = baseContext.getString(R.string.url) + "/command/?cmd=set_volume%20-"
+
+        return when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                sendVolumeCommand("http://moode.local/command/?cmd=set_volume%20-dn%201")
-                return true
+                sendVolumeCommand(volumeCommand + "dn%201")
+                true
             }
             KeyEvent.KEYCODE_VOLUME_UP -> {
-                sendVolumeCommand("http://moode.local/command/?cmd=set_volume%20-up%201")
-                return true
+                sendVolumeCommand(volumeCommand + "up%201")
+                true
             }
+            else -> super.onKeyDown(keyCode, event)
         }
-        return super.onKeyDown(keyCode, event)
     }
 
     private fun sendVolumeCommand(url: String) {
@@ -57,18 +60,16 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebViewContent() {
-    val url = "http://moode.local"
     val context = LocalContext.current
+    val url = context.getString(R.string.url)
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = {
                 WebView(context).apply {
-
                     webViewClient = WebViewClient()
-
                     settings.apply {
                         javaScriptEnabled = true
                         loadWithOverviewMode = true
@@ -78,18 +79,14 @@ fun WebViewContent() {
                         mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                         userAgentString = WebSettings.getDefaultUserAgent(context) // Sets default user agent
                         databaseEnabled = true
-                        //setAppCacheEnabled(true)
                         mediaPlaybackRequiresUserGesture = false
                         builtInZoomControls = true
                         displayZoomControls = false
                         layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
-
-                        // Enabling additional settings for better performance and rendering
                         allowFileAccess = true
                         javaScriptCanOpenWindowsAutomatically = true
                         loadsImagesAutomatically = true
                     }
-                    // Ensuring the WebView is laid out properly
                     layoutParams = android.view.ViewGroup.LayoutParams(
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT

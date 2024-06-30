@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Moodroid</string>
+    <string name="url">http://192.168.0.193</string>
 </resources>
