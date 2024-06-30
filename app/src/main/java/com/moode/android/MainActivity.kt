@@ -1,62 +1,57 @@
 package com.moode.android
 
-import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
+import com.moode.android.ui.MainScreen
+import com.moode.android.viewmodel.SettingsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val TAG = "MainActivity"
+    }
+
+    private val settingsViewModel by viewModels<SettingsViewModel>()
     private val client = OkHttpClient()
+    private var url: String = ""
+    private var volumeStep: Int = 0
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            WebViewContent()
+            MainScreen(settingsViewModel = settingsViewModel)
         }
+        settingsViewModel.url.observe(this, Observer { newUrl ->
+            url = newUrl
+        })
+
+        settingsViewModel.volumeStep.observe(this, Observer { newVolumeStep ->
+            volumeStep = newVolumeStep
+        })
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        val volumeCommand = baseContext.getString(R.string.url) + "/command/?cmd=set_volume%20-"
+        val volumeCommand: String = url + "/command/?cmd=set_volume%20-"
 
         return when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                sendVolumeCommand(volumeCommand + "dn%201")
+                Log.i(TAG, "onKeyDown: lowering volume")
+                sendVolumeCommand(volumeCommand + "dn%20" + volumeStep)
                 true
             }
 
             KeyEvent.KEYCODE_VOLUME_UP -> {
-                sendVolumeCommand(volumeCommand + "up%201")
+                Log.i(TAG, "onKeyDown: increasing volume")
+                sendVolumeCommand(volumeCommand + "up%20" + volumeStep)
                 true
             }
 
@@ -78,78 +73,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("SetJavaScriptEnabled")
-@Composable
-fun WebViewContent() {
-    val context = LocalContext.current
-    val url = context.getString(R.string.url)
-    val webView = WebView(context)
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                ),
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = painterResource(id = R.drawable.img),
-                            contentDescription = "Moodroid",
-                            modifier = Modifier.size(32.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Moodroid")
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            webView.loadUrl(url)
-                        },
-                    ) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
-                    }
-                }
-            )
-        },
-        content = { pv ->
-            AndroidView(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(pv),
-                factory = {
-                    webView.apply {
-                        webViewClient = WebViewClient()
-                        settings.apply {
-                            javaScriptEnabled = true
-                            loadWithOverviewMode = true
-                            useWideViewPort = true
-                            domStorageEnabled = true
-                            cacheMode = WebSettings.LOAD_DEFAULT
-                            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                            userAgentString =
-                                WebSettings.getDefaultUserAgent(context) // Sets default user agent
-                            databaseEnabled = true
-                            mediaPlaybackRequiresUserGesture = false
-                            builtInZoomControls = true
-                            displayZoomControls = false
-                            layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
-                            allowFileAccess = true
-                            javaScriptCanOpenWindowsAutomatically = true
-                            loadsImagesAutomatically = true
-                        }
-                        layoutParams = android.view.ViewGroup.LayoutParams(
-                            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                            android.view.ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        loadUrl(url)
-                    }
-                }
-            )
-        })
 }
