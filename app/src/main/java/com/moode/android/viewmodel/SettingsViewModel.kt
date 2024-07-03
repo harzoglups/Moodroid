@@ -9,7 +9,7 @@ import com.moode.android.data.SettingsDataStore
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-    val settingsDataStore = SettingsDataStore(application)
+    private val settingsDataStore = SettingsDataStore(application)
     val url: LiveData<String> = settingsDataStore.url.asLiveData()
     val volumeStep: LiveData<Int> = settingsDataStore.volumeStep.asLiveData()
 

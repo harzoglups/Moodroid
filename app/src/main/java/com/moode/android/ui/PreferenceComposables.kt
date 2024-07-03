@@ -42,7 +42,7 @@ fun TextPreference(
 @Composable
 fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
-    Column() {
+    Column {
         TextPreference(
             text = settingsViewModel.url.value ?: context.getString(R.string.url),
             label = "Moode Audio URL",
