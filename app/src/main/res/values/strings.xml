@@ -2,7 +2,7 @@
     <string name="app_name">Moodroid</string>
     <string name="settings_views_title">Moodroid - Settings</string>
     <string name="main_view_title">Moodroid</string>
-    <string name="url">http://192.168.0.193</string>
+    <string name="url">http://moode.local</string>
     <string name="volume_step">1</string>
     <string name="back_button">Back</string>
 </resources>
