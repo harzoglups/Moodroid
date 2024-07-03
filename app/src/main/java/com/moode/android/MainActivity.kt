@@ -30,17 +30,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             MainScreen(settingsViewModel = settingsViewModel)
         }
-        settingsViewModel.url.observe(this, Observer { newUrl ->
+        settingsViewModel.url.observe(this) { newUrl ->
             url = newUrl
-        })
+        }
 
-        settingsViewModel.volumeStep.observe(this, Observer { newVolumeStep ->
+        settingsViewModel.volumeStep.observe(this) { newVolumeStep ->
             volumeStep = newVolumeStep
-        })
+        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        val volumeCommand: String = url + "/command/?cmd=set_volume%20-"
+        val volumeCommand: String = "$url/command/?cmd=set_volume%20-"
 
         return when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
