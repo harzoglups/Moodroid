@@ -6,7 +6,6 @@ import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import com.moode.android.ui.MainScreen
 import com.moode.android.viewmodel.SettingsViewModel
 import okhttp3.OkHttpClient
