@@ -26,13 +26,14 @@ import com.moode.android.viewmodel.SettingsViewModel
 fun WebViewContent(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     val webView = WebView(context)
+    val url = settingsViewModel.url.value ?: context.getString(R.string.url)
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    Log.i(MainActivity.TAG, "Refreshing URL")
-                    webView.loadUrl(settingsViewModel.url.value ?: context.getString(R.string.url))
+                    Log.i(MainActivity.TAG, "Refreshing URL $url")
+                    webView.loadUrl(url)
                 },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier.offset(x = 0.dp, y = (-120).dp)
@@ -70,7 +71,8 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT
                         )
-                        loadUrl(settingsViewModel.url.value ?: context.getString(R.string.url))
+                        Log.i(MainActivity.TAG, "Loading URL $url")
+                        loadUrl(url)
                     }
                 }
             )
