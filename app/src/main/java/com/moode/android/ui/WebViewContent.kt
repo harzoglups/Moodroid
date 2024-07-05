@@ -61,10 +61,14 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                     Log.i(MainActivity.TAG, "Refreshing URL $url")
                     webView.reload()
                 },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 modifier = Modifier.offset(x = 0.dp, y = (-120).dp)
             ) {
-                Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
+                Icon(
+                    Icons.Filled.Refresh,
+                    contentDescription = "Refresh",
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
             }
         },
         content = { pv ->
