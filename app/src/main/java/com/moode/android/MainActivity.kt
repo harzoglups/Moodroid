@@ -27,15 +27,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MainScreen(settingsViewModel = settingsViewModel)
-        }
         settingsViewModel.url.observe(this) { newUrl ->
             url = newUrl
         }
 
         settingsViewModel.volumeStep.observe(this) { newVolumeStep ->
             volumeStep = newVolumeStep
+        }
+        setContent {
+            MainScreen(settingsViewModel = settingsViewModel)
         }
     }
 
