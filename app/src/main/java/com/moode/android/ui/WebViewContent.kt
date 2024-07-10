@@ -1,6 +1,7 @@
 package com.moode.android.ui
 
 import android.util.Log
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -13,8 +14,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -27,9 +27,23 @@ import com.moode.android.viewmodel.SettingsViewModel
 fun WebViewContent(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     val url = settingsViewModel.url.value ?: context.getString(R.string.url)
-    val webView = remember {
-        WebView(context).apply {
-            webViewClient = WebViewClient()
+    var webView by remember { mutableStateOf<WebView?>(null) }
+
+    fun createWebView(initialUrl: String): WebView {
+        return WebView(context).apply {
+            webViewClient = object : WebViewClient() {
+                override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+                    Log.d(MainActivity.TAG, "onRenderProcessGone: $detail")
+                    (context as? MainActivity)?.let { activity ->
+                        activity.runOnUiThread {
+                            view?.destroy()
+                            webView = createWebView(initialUrl)
+                            webView?.loadUrl(initialUrl)
+                        }
+                    }
+                    return true
+                }
+            }
             settings.apply {
                 javaScriptEnabled = true
                 loadWithOverviewMode = true
@@ -54,12 +68,17 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
         }
     }
 
+    if (webView == null) {
+        webView = createWebView(url)
+        webView?.loadUrl(url)
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     Log.i(MainActivity.TAG, "Refreshing URL $url")
-                    webView.reload()
+                    webView?.reload()
                 },
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 modifier = Modifier.offset(x = 0.dp, y = (-120).dp)
@@ -77,7 +96,7 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                     .fillMaxSize()
                     .padding(pv),
                 factory = {
-                    webView
+                    webView ?: createWebView(url).also { webView = it }
                 },
                 update = {
                     Log.i(MainActivity.TAG, "Loading URL $url")
@@ -86,4 +105,10 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
             )
         }
     )
+
+    DisposableEffect(Unit) {
+        onDispose {
+            webView?.destroy()
+        }
+    }
 }
