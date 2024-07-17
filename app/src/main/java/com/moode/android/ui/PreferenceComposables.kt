@@ -57,6 +57,7 @@ fun TextPreference(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp
             ),
+            singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 cursorColor = MaterialTheme.colorScheme.primary,
                 focusedBorderColor = MaterialTheme.colorScheme.secondary,
