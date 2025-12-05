@@ -19,6 +19,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val settingsDataStore = SettingsDataStore(application)
     val url: LiveData<String> = settingsDataStore.url.asLiveData()
     val volumeStep: LiveData<Int> = settingsDataStore.volumeStep.asLiveData()
+    val urlHistory: LiveData<List<String>> = settingsDataStore.urlHistory.asLiveData()
     
     private val _connectionStatus = MutableLiveData<ConnectionStatus>(ConnectionStatus.UNKNOWN)
     val connectionStatus: LiveData<ConnectionStatus> = _connectionStatus
@@ -28,10 +29,22 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             settingsDataStore.setUrl(url)
         }
     }
+    
+    fun addUrlToHistory(url: String) {
+        viewModelScope.launch {
+            settingsDataStore.addUrlToHistory(url)
+        }
+    }
 
     fun setVolumeStep(volumeStep: Int) {
         viewModelScope.launch {
             settingsDataStore.setVolumeStep(volumeStep)
+        }
+    }
+    
+    fun clearUrlHistory() {
+        viewModelScope.launch {
+            settingsDataStore.clearUrlHistory()
         }
     }
     

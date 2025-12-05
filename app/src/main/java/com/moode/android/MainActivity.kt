@@ -34,7 +34,15 @@ class MainActivity : ComponentActivity() {
         
         settingsViewModel.url.observe(this) { newUrl ->
             Log.i(TAG, "URL observer: URL changed to: $newUrl")
+            val previousUrl = url
             url = newUrl
+            
+            // Add initial URL to history on first load (only once)
+            if (previousUrl.isEmpty() && newUrl.matches(Regex("^https?://.*")) && newUrl.length > 10) {
+                Log.i(TAG, "Adding initial URL to history: $newUrl")
+                settingsViewModel.addUrlToHistory(newUrl)
+            }
+            
             // Test connection when URL is loaded or changed
             testConnection()
         }
