@@ -1,6 +1,7 @@
 package com.moode.android.ui
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,6 +29,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -95,6 +97,8 @@ fun MoodroidTopBar(
     settingsViewModel: SettingsViewModel
 ) {
     val connectionStatus by settingsViewModel.connectionStatus.observeAsState(ConnectionStatus.UNKNOWN)
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     
     TopAppBar(
         colors = topAppBarColors(
@@ -103,12 +107,15 @@ fun MoodroidTopBar(
         ),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.drawable.img),
-                    contentDescription = "Moodroid",
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+                // Hide icon in landscape to save space
+                if (!isLandscape) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img),
+                        contentDescription = "Moodroid",
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
                 Text(stringResource(currentScreen.title))
                 Spacer(modifier = Modifier.width(8.dp))
                 // Connection status indicator

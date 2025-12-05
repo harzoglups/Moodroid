@@ -1,5 +1,6 @@
 package com.moode.android.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
@@ -122,22 +124,28 @@ fun SettingsSection(
     title: String,
     content: @Composable () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = if (isLandscape) 4.dp else 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(
+            horizontal = 16.dp,
+            vertical = if (isLandscape) 12.dp else 16.dp
+        )) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = if (isLandscape) 8.dp else 12.dp)
             )
             content()
         }
@@ -147,6 +155,8 @@ fun SettingsSection(
 @Composable
 fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val urlHistory by settingsViewModel.urlHistory.observeAsState(emptyList())
     val currentUrl by settingsViewModel.url.observeAsState(context.getString(R.string.url))
     var showUrlDropdown by remember { mutableStateOf(false) }
@@ -171,7 +181,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = if (isLandscape) 8.dp else 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         // Connection Settings Section
@@ -290,9 +300,9 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
-                Spacer(modifier = Modifier.size(12.dp))
+                Spacer(modifier = Modifier.size(if (isLandscape) 8.dp else 12.dp))
                 HorizontalDivider()
-                Spacer(modifier = Modifier.size(12.dp))
+                Spacer(modifier = Modifier.size(if (isLandscape) 8.dp else 12.dp))
                 
                 Text(
                     text = "Features:",
@@ -301,7 +311,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
-                Spacer(modifier = Modifier.size(8.dp))
+                Spacer(modifier = Modifier.size(if (isLandscape) 4.dp else 8.dp))
                 
                 val features = listOf(
                     "WebView wrapper for Moode Audio",
@@ -317,13 +327,13 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                         text = "• $feature",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 2.dp)
+                        modifier = Modifier.padding(vertical = if (isLandscape) 1.dp else 2.dp)
                     )
                 }
                 
-                Spacer(modifier = Modifier.size(12.dp))
+                Spacer(modifier = Modifier.size(if (isLandscape) 8.dp else 12.dp))
                 HorizontalDivider()
-                Spacer(modifier = Modifier.size(12.dp))
+                Spacer(modifier = Modifier.size(if (isLandscape) 8.dp else 12.dp))
                 
                 Text(
                     text = "Moodroid is an open-source Android wrapper for Moode Audio, providing seamless control of your Moode music server.",
@@ -334,6 +344,6 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
             }
         }
         
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(if (isLandscape) 8.dp else 16.dp))
     }
 }

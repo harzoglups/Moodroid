@@ -1,6 +1,7 @@
 package com.moode.android.ui
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.RenderProcessGoneDetail
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -28,6 +30,8 @@ import com.moode.android.viewmodel.SettingsViewModel
 @Composable
 fun WebViewContent(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val url = settingsViewModel.url.value ?: context.getString(R.string.url)
     var webView by remember { mutableStateOf<WebView?>(null) }
     var loading by remember { mutableStateOf(true) }
@@ -144,7 +148,10 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                     webView?.reload()
                 },
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.offset(x = 0.dp, y = (-120).dp)
+                modifier = Modifier.offset(
+                    x = if (isLandscape) (-16).dp else 0.dp,
+                    y = if (isLandscape) (-80).dp else (-120).dp
+                )
             ) {
                 Icon(
                     Icons.Filled.Refresh,

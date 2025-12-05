@@ -17,6 +17,10 @@ Android Application Wrapper for Moode Audio UI with Volume Button Control
   - Quick access to previous Moode servers via dropdown
   - Clear history option
   - About section with feature list
+* Adaptive UI for landscape and portrait orientations:
+  - Optimized FAB positioning in landscape mode
+  - Compact TopAppBar (hides icon to save vertical space)
+  - Reduced spacing in Settings for better content visibility
 * Floating refresh button for manual page reload
 * Configurable volume step size (1-100)
 * Input validation for URL and volume settings
