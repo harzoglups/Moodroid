@@ -25,6 +25,54 @@ Android Application Wrapper for Moode Audio UI with Volume Button Control
 * Configurable volume step size (1-100)
 * Input validation for URL and volume settings
 
+## Architecture
+
+Moodroid follows **Clean Architecture** principles with modern Android development standards:
+
+### Layer Structure
+
+```
+app/
+├── domain/                    # Business logic layer
+│   ├── model/                # Domain models (Settings, ConnectionState, Result)
+│   ├── repository/           # Repository interfaces
+│   └── usecase/              # Use cases (business logic operations)
+├── data/                     # Data layer
+│   ├── source/
+│   │   ├── local/           # Local data source (DataStore)
+│   │   └── remote/          # Remote data source (OkHttp)
+│   ├── MoodeRepositoryImpl  # Moode API implementation
+│   └── SettingsRepositoryImpl # Settings storage implementation
+├── di/                       # Dependency injection (Hilt modules)
+│   ├── AppModule            # Application-level dependencies
+│   └── RepositoryModule     # Repository bindings
+├── ui/                       # Presentation layer (Jetpack Compose)
+│   ├── MainScreen           # Main navigation and top bar
+│   ├── WebViewContent       # Moode Audio WebView
+│   └── PreferenceComposables # Settings screen
+└── viewmodel/               # ViewModels with StateFlow
+    └── SettingsViewModel    # Settings and connection management
+```
+
+### Key Technologies
+
+- **Clean Architecture**: Separation of concerns with domain, data, and presentation layers
+- **Dependency Injection**: Hilt for compile-time DI and better testability
+- **Reactive State**: StateFlow instead of LiveData for modern Kotlin-first approach
+- **Coroutines**: Structured concurrency with proper IO dispatcher usage
+- **Jetpack Compose**: Modern declarative UI with Material3
+- **Repository Pattern**: Abstraction layer between data sources and business logic
+- **Use Cases**: Single responsibility for each business operation
+- **Type-Safe Error Handling**: Result sealed class for Success/Error/Loading states
+
+### Benefits
+
+- ✅ **Testability**: Each layer can be tested independently
+- ✅ **Maintainability**: Clear separation of concerns
+- ✅ **Scalability**: Easy to add new features without affecting existing code
+- ✅ **Type Safety**: Compile-time checks with sealed classes and StateFlow
+- ✅ **Modern Standards**: Follows Google's recommended architecture guidelines
+
 ## Installation Guide
 
 ### Method 1: Download Pre-built APK (Recommended)

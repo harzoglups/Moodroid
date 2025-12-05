@@ -32,6 +32,19 @@ This document tracks potential improvements and features for the Moodroid applic
 - **Improvement**: Configure cache to improve performance
 - **Status**: ✅ Completed
 
+### 14. Clean Architecture Refactor
+**Priority: High**
+- **Current**: Basic MVVM structure with direct dependencies
+- **Issue**: Difficult to test, tightly coupled components
+- **Improvement**: Implement Clean Architecture with domain/data/presentation layers, Hilt DI, StateFlow
+- **Status**: ✅ Completed - Full architectural refactor with:
+  - Clean Architecture layers (domain, data, presentation)
+  - Hilt dependency injection
+  - StateFlow instead of LiveData
+  - Repository pattern with use cases
+  - Result sealed class for error handling
+  - Proper IO dispatcher usage for network operations
+
 ## 🎨 UX/UI Improvements
 
 ### 5. Connection Status Indicator
@@ -117,7 +130,7 @@ The Moodroid application is feature-complete with all high-priority improvements
 - ❌ #12: Android Widget (not suitable for WebView wrapper)
 - ❌ #13: Dynamic Shortcuts (not suitable for WebView wrapper)
 
-## ✅ Completed Features (8/8 Essential)
+## ✅ Completed Features (9/9 Essential)
 - ✅ Fix WebView white screen issue
 - ✅ Network Error Handling (coroutines + Toast feedback)
 - ✅ OkHttpClient Lifecycle Management
@@ -126,6 +139,7 @@ The Moodroid application is feature-complete with all high-priority improvements
 - ✅ WebView Performance Optimization (hardware acceleration, intelligent caching, Safe Browsing)
 - ✅ URL Favorites/History (modern Material3 Settings UI with history dropdown and about section)
 - ✅ Landscape Orientation Optimization (adaptive FAB positioning, compact TopAppBar, reduced spacing)
+- ✅ Clean Architecture Refactor (Hilt DI, StateFlow, Repository pattern, Use Cases, proper layer separation)
 
 ## ❌ Cancelled Features (3)
 - ❌ Swipe to Refresh (#6) - Conflicts with WebView scroll gestures, FAB is sufficient
