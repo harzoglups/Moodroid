@@ -46,7 +46,7 @@ This document tracks potential improvements and features for the Moodroid applic
 - **Current**: Only FAB button for refresh
 - **Issue**: Non-standard Android UX pattern
 - **Improvement**: Add standard Android swipe-to-refresh gesture
-- **Status**: Pending
+- **Status**: ❌ Not Implemented - Conflicts with WebView scroll gestures, FAB is sufficient
 
 ### 7. URL Favorites / History
 **Priority: Low**
@@ -127,4 +127,4 @@ This document tracks potential improvements and features for the Moodroid applic
 - ✅ Network Error Handling (coroutines + Toast feedback)
 - ✅ OkHttpClient Lifecycle Management
 - ✅ User Input Validation (URL and Volume Step with error messages)
-- ✅ Connection Status Indicator (colored dot in top bar + haptic feedback)
+- ✅ Connection Status Indicator (colored dot in top bar)

@@ -9,6 +9,7 @@ Android Application Wrapper for Moode Audio UI with Volume Button Control
   - Green dot: Connected to Moode server
   - Red dot: Connection failed or lost
   - Gray dot: Connection status unknown (initial state)
+* Floating refresh button for manual page reload
 * Configurable volume step size (1-100)
 * Input validation for URL and volume settings
 
