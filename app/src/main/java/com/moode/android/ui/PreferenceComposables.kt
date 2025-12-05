@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,6 +47,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moode.android.BuildConfig
 import com.moode.android.R
 import com.moode.android.viewmodel.SettingsViewModel
@@ -158,16 +158,15 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val urlHistory by settingsViewModel.urlHistory.observeAsState(emptyList())
-    val currentUrl by settingsViewModel.url.observeAsState(context.getString(R.string.url))
+    val urlHistory by settingsViewModel.urlHistory.collectAsStateWithLifecycle()
+    val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val currentUrl = settings.url.ifEmpty { context.getString(R.string.url) }
     var showUrlDropdown by remember { mutableStateOf(false) }
     var lastValidUrl by remember { mutableStateOf("") }
     
     // Track the last valid URL during composition
-    currentUrl?.let { url ->
-        if (url.matches(Regex("^https?://.*")) && url.length > 10) {
-            lastValidUrl = url
-        }
+    if (currentUrl.matches(Regex("^https?://.*")) && currentUrl.length > 10) {
+        lastValidUrl = currentUrl
     }
     
     // Add URL to history when leaving the screen
@@ -188,7 +187,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
         // Connection Settings Section
         SettingsSection(title = "Connection Settings") {
             TextPreference(
-                text = currentUrl ?: context.getString(R.string.url),
+                text = currentUrl,
                 label = "Moode Audio URL",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Uri,
@@ -233,8 +232,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
             Spacer(modifier = Modifier.size(16.dp))
             
             TextPreference(
-                text = settingsViewModel.volumeStep.value?.toString()
-                    ?: context.getString(R.string.volume_step),
+                text = settings.volumeStep.toString(),
                 label = "Volume Step",
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -320,7 +318,8 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                     "Real-time connection status",
                     "Performance-optimized rendering",
                     "URL history and favorites",
-                    "Input validation"
+                    "Input validation",
+                    "Clean Architecture with Hilt DI"
                 )
                 
                 features.forEach { feature ->

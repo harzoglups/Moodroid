@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.hilt.android.plugin)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -95,5 +97,15 @@ dependencies {
     implementation(libs.androidx.navigation)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.lifecycle)
+    implementation(libs.androidx.lifecycle.compose)
     implementation(libs.androidx.runtime.livedata)
+    
+    // Hilt Dependency Injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
+    
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 }

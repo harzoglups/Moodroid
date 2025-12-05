@@ -3,7 +3,6 @@ package com.moode.android.ui
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.util.Log
-import android.webkit.JavascriptInterface
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -15,13 +14,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moode.android.MainActivity
 import com.moode.android.R
 import com.moode.android.viewmodel.SettingsViewModel
@@ -32,7 +31,8 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val url = settingsViewModel.url.value ?: context.getString(R.string.url)
+    val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val url = settings.url.ifEmpty { context.getString(R.string.url) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     var loading by remember { mutableStateOf(true) }
     var currentUrl by remember { mutableStateOf(url) }
@@ -91,7 +91,7 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                     return true
                 }
             }
-            settings.apply {
+            this.settings.apply {
                 javaScriptEnabled = true
                 loadWithOverviewMode = true
                 useWideViewPort = true

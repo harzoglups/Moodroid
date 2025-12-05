@@ -25,7 +25,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,13 +32,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.moode.android.R
-import com.moode.android.viewmodel.ConnectionStatus
+import com.moode.android.domain.model.ConnectionState
 import com.moode.android.viewmodel.SettingsViewModel
 
 enum class MoodroidScreens(@StringRes val title: Int) {
@@ -96,7 +96,7 @@ fun MoodroidTopBar(
     action: () -> Unit,
     settingsViewModel: SettingsViewModel
 ) {
-    val connectionStatus by settingsViewModel.connectionStatus.observeAsState(ConnectionStatus.UNKNOWN)
+    val connectionStatus by settingsViewModel.connectionStatus.collectAsStateWithLifecycle()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     
@@ -120,9 +120,9 @@ fun MoodroidTopBar(
                 Spacer(modifier = Modifier.width(8.dp))
                 // Connection status indicator
                 val statusColor = when (connectionStatus) {
-                    ConnectionStatus.CONNECTED -> Color(0xFF4CAF50) // Green
-                    ConnectionStatus.DISCONNECTED -> Color(0xFFF44336) // Red
-                    ConnectionStatus.UNKNOWN -> Color(0xFF9E9E9E) // Gray
+                    ConnectionState.CONNECTED -> Color(0xFF4CAF50) // Green
+                    ConnectionState.DISCONNECTED -> Color(0xFFF44336) // Red
+                    ConnectionState.UNKNOWN -> Color(0xFF9E9E9E) // Gray
                 }
                 androidx.compose.foundation.layout.Box(
                     modifier = Modifier
