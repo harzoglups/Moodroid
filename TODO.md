@@ -16,7 +16,7 @@ This document tracks potential improvements and features for the Moodroid applic
 - **Current**: Volume Step can crash if input is not a valid number (PreferenceComposables.kt:96-97)
 - **Issue**: No URL validation, no input sanitization
 - **Improvement**: Add validation + error handling for both URL and Volume Step fields
-- **Status**: Pending
+- **Status**: ✅ Completed
 
 ### 3. OkHttpClient Lifecycle Management
 **Priority: Medium**
@@ -126,3 +126,4 @@ This document tracks potential improvements and features for the Moodroid applic
 - ✅ Fix WebView white screen issue
 - ✅ Network Error Handling (coroutines + Toast feedback)
 - ✅ OkHttpClient Lifecycle Management
+- ✅ User Input Validation (URL and Volume Step with error messages)

@@ -33,14 +33,21 @@ fun TextPreference(
     label: String = "Label",
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     updateSetting: (String) -> Unit = {},
+    validator: (String) -> Boolean = { true },
+    errorMessage: String = "Invalid input",
 ) {
     var value by rememberSaveable { mutableStateOf(text) }
+    var isError by rememberSaveable { mutableStateOf(false) }
+    
     Row {
         OutlinedTextField(
             value = value,
             onValueChange = { newValue ->
                 value = newValue
-                updateSetting(newValue)
+                isError = !validator(newValue)
+                if (!isError && newValue.isNotEmpty()) {
+                    updateSetting(newValue)
+                }
             },
             label = {
                 Text(
@@ -58,11 +65,17 @@ fun TextPreference(
                 fontSize = 16.sp
             ),
             singleLine = true,
+            isError = isError,
+            supportingText = if (isError) {
+                { Text(errorMessage) }
+            } else null,
             colors = OutlinedTextFieldDefaults.colors(
                 cursorColor = MaterialTheme.colorScheme.primary,
                 focusedBorderColor = MaterialTheme.colorScheme.secondary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
                 focusedLabelColor = MaterialTheme.colorScheme.secondary,
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorLabelColor = MaterialTheme.colorScheme.error,
             ),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = keyboardOptions,
@@ -82,19 +95,34 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
         TextPreference(
             text = settingsViewModel.url.value ?: context.getString(R.string.url),
             label = "Moode Audio URL",
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
-        ) { url ->
-            settingsViewModel.setUrl(url)
-        }
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+            validator = { url ->
+                // URL validation: must start with http:// or https:// and have valid format
+                url.isEmpty() || (url.matches(Regex("^https?://.*")) && url.length > 10)
+            },
+            errorMessage = "URL must start with http:// or https://",
+            updateSetting = { url ->
+                settingsViewModel.setUrl(url)
+            }
+        )
         Spacer(modifier = Modifier.size(16.dp))
         TextPreference(
             text = settingsViewModel.volumeStep.value?.toString()
                 ?: context.getString(R.string.volume_step),
             label = "Volume Step",
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        ) { volumeStep ->
-            if (volumeStep.isNotEmpty())
-                settingsViewModel.setVolumeStep(volumeStep.toInt())
-        }
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            validator = { volumeStep ->
+                // Volume step validation: must be a positive integer between 1 and 100
+                volumeStep.isEmpty() || volumeStep.toIntOrNull()?.let { it in 1..100 } ?: false
+            },
+            errorMessage = "Must be a number between 1 and 100",
+            updateSetting = { volumeStep ->
+                volumeStep.toIntOrNull()?.let { step ->
+                    if (step in 1..100) {
+                        settingsViewModel.setVolumeStep(step)
+                    }
+                }
+            }
+        )
     }
 }
