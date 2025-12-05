@@ -1,0 +1,52 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Moodroid</string>
+    <string name="settings_views_title">Moodroid - 设置</string>
+    <string name="main_view_title">Moodroid</string>
+    
+    <!-- Default Values -->
+    <string name="url">http://moode.local</string>
+    <string name="volume_step">1</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Moode Audio 控制器</string>
+    <string name="splash_logo_description">Moodroid 标志</string>
+    
+    <!-- Settings Sections -->
+    <string name="settings_connection_title">连接设置</string>
+    <string name="settings_history_title">URL 历史记录</string>
+    <string name="settings_about_title">关于 Moodroid</string>
+    
+    <!-- Connection Settings -->
+    <string name="settings_url_label">Moode Audio URL</string>
+    <string name="settings_url_error">URL 必须以 http:// 或 https:// 开头</string>
+    <string name="settings_volume_step_label">音量步进</string>
+    <string name="settings_volume_step_error">必须是 1 到 100 之间的数字</string>
+    
+    <!-- URL History -->
+    <string name="history_recent_servers">最近的 Moode 服务器：</string>
+    <string name="history_clear_button">清除历史记录</string>
+    <string name="history_show_dropdown">显示 URL 历史记录</string>
+    
+    <!-- About Section -->
+    <string name="about_version">版本 %s</string>
+    <string name="about_features_title">功能：</string>
+    <string name="about_description">Moodroid 是一个开源的 Android 应用程序，用于 Moode Audio，提供对您的 Moode 音乐服务器的无缝控制。</string>
+    
+    <!-- Features List -->
+    <string name="feature_webview">Moode Audio 的 WebView 封装</string>
+    <string name="feature_volume_control">硬件音量按钮控制</string>
+    <string name="feature_connection_status">实时连接状态</string>
+    <string name="feature_performance">性能优化渲染</string>
+    <string name="feature_url_history">URL 历史记录和收藏夹</string>
+    <string name="feature_input_validation">输入验证</string>
+    <string name="feature_clean_architecture">Clean Architecture 与 Hilt DI</string>
+    
+    <!-- Main Screen -->
+    <string name="main_app_icon_description">Moodroid</string>
+    <string name="main_settings_button">设置</string>
+    <string name="main_refresh_button">刷新</string>
+    
+    <!-- Navigation -->
+    <string name="back_button">返回</string>
+</resources>

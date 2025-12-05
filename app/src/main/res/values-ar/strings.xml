@@ -1,0 +1,52 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Moodroid</string>
+    <string name="settings_views_title">Moodroid - الإعدادات</string>
+    <string name="main_view_title">Moodroid</string>
+    
+    <!-- Default Values -->
+    <string name="url">http://moode.local</string>
+    <string name="volume_step">1</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_tagline">متحكم Moode Audio</string>
+    <string name="splash_logo_description">شعار Moodroid</string>
+    
+    <!-- Settings Sections -->
+    <string name="settings_connection_title">إعدادات الاتصال</string>
+    <string name="settings_history_title">سجل العناوين</string>
+    <string name="settings_about_title">حول Moodroid</string>
+    
+    <!-- Connection Settings -->
+    <string name="settings_url_label">عنوان Moode Audio</string>
+    <string name="settings_url_error">يجب أن يبدأ العنوان بـ http:// أو https://</string>
+    <string name="settings_volume_step_label">خطوة الصوت</string>
+    <string name="settings_volume_step_error">يجب أن يكون رقمًا بين 1 و 100</string>
+    
+    <!-- URL History -->
+    <string name="history_recent_servers">خوادم Moode الأخيرة:</string>
+    <string name="history_clear_button">مسح السجل</string>
+    <string name="history_show_dropdown">إظهار سجل العناوين</string>
+    
+    <!-- About Section -->
+    <string name="about_version">الإصدار %s</string>
+    <string name="about_features_title">المميزات:</string>
+    <string name="about_description">Moodroid هو تطبيق Android مفتوح المصدر لـ Moode Audio، يوفر تحكمًا سلسًا في خادم الموسيقى Moode الخاص بك.</string>
+    
+    <!-- Features List -->
+    <string name="feature_webview">غلاف WebView لـ Moode Audio</string>
+    <string name="feature_volume_control">التحكم بأزرار الصوت الفعلية</string>
+    <string name="feature_connection_status">حالة الاتصال في الوقت الفعلي</string>
+    <string name="feature_performance">عرض محسّن للأداء</string>
+    <string name="feature_url_history">سجل العناوين والمفضلة</string>
+    <string name="feature_input_validation">التحقق من صحة الإدخال</string>
+    <string name="feature_clean_architecture">Clean Architecture مع Hilt DI</string>
+    
+    <!-- Main Screen -->
+    <string name="main_app_icon_description">Moodroid</string>
+    <string name="main_settings_button">الإعدادات</string>
+    <string name="main_refresh_button">تحديث</string>
+    
+    <!-- Navigation -->
+    <string name="back_button">رجوع</string>
+</resources>

@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -185,10 +186,10 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
             .verticalScroll(rememberScrollState())
     ) {
         // Connection Settings Section
-        SettingsSection(title = "Connection Settings") {
+        SettingsSection(title = stringResource(R.string.settings_connection_title)) {
             TextPreference(
                 text = currentUrl,
-                label = "Moode Audio URL",
+                label = stringResource(R.string.settings_url_label),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Uri,
                     imeAction = ImeAction.Done
@@ -196,7 +197,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                 validator = { url ->
                     url.isEmpty() || (url.matches(Regex("^https?://.*")) && url.length > 10)
                 },
-                errorMessage = "URL must start with http:// or https://",
+                errorMessage = stringResource(R.string.settings_url_error),
                 updateSetting = { url ->
                     settingsViewModel.setUrl(url)
                 },
@@ -209,7 +210,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                 trailingIcon = if (urlHistory.isNotEmpty()) {
                     {
                         IconButton(onClick = { showUrlDropdown = !showUrlDropdown }) {
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Show URL history")
+                            Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(R.string.history_show_dropdown))
                         }
                         DropdownMenu(
                             expanded = showUrlDropdown,
@@ -233,7 +234,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
             
             TextPreference(
                 text = settings.volumeStep.toString(),
-                label = "Volume Step",
+                label = stringResource(R.string.settings_volume_step_label),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
@@ -241,7 +242,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                 validator = { volumeStep ->
                     volumeStep.isEmpty() || volumeStep.toIntOrNull()?.let { it in 1..100 } ?: false
                 },
-                errorMessage = "Must be a number between 1 and 100",
+                errorMessage = stringResource(R.string.settings_volume_step_error),
                 updateSetting = { volumeStep ->
                     volumeStep.toIntOrNull()?.let { step ->
                         if (step in 1..100) {
@@ -254,10 +255,10 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
         
         // URL History Section
         if (urlHistory.isNotEmpty()) {
-            SettingsSection(title = "URL History") {
+            SettingsSection(title = stringResource(R.string.settings_history_title)) {
                 Column {
                     Text(
-                        text = "Recent Moode servers:",
+                        text = stringResource(R.string.history_recent_servers),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -283,17 +284,17 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = null)
                         Spacer(modifier = Modifier.size(8.dp))
-                        Text("Clear History")
+                        Text(stringResource(R.string.history_clear_button))
                     }
                 }
             }
         }
         
         // About Section
-        SettingsSection(title = "About Moodroid") {
+        SettingsSection(title = stringResource(R.string.settings_about_title)) {
             Column {
                 Text(
-                    text = "Version ${BuildConfig.VERSION_NAME}",
+                    text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -304,7 +305,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                 Spacer(modifier = Modifier.size(if (isLandscape) 8.dp else 12.dp))
                 
                 Text(
-                    text = "Features:",
+                    text = stringResource(R.string.about_features_title),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -313,13 +314,13 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                 Spacer(modifier = Modifier.size(if (isLandscape) 4.dp else 8.dp))
                 
                 val features = listOf(
-                    "WebView wrapper for Moode Audio",
-                    "Hardware volume button control",
-                    "Real-time connection status",
-                    "Performance-optimized rendering",
-                    "URL history and favorites",
-                    "Input validation",
-                    "Clean Architecture with Hilt DI"
+                    stringResource(R.string.feature_webview),
+                    stringResource(R.string.feature_volume_control),
+                    stringResource(R.string.feature_connection_status),
+                    stringResource(R.string.feature_performance),
+                    stringResource(R.string.feature_url_history),
+                    stringResource(R.string.feature_input_validation),
+                    stringResource(R.string.feature_clean_architecture)
                 )
                 
                 features.forEach { feature ->
@@ -336,7 +337,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                 Spacer(modifier = Modifier.size(if (isLandscape) 8.dp else 12.dp))
                 
                 Text(
-                    text = "Moodroid is an open-source Android wrapper for Moode Audio, providing seamless control of your Moode music server.",
+                    text = stringResource(R.string.about_description),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 18.sp

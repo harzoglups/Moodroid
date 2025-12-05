@@ -13,7 +13,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -167,7 +169,7 @@ fun SplashScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img),
-                contentDescription = "Moodroid Logo",
+                contentDescription = stringResource(R.string.splash_logo_description),
                 modifier = Modifier
                     .size(120.dp)
                     .scale(iconScale)
@@ -178,7 +180,7 @@ fun SplashScreen(
             
             // App name with fade-in
             Text(
-                text = "Moodroid",
+                text = stringResource(R.string.app_name),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -189,7 +191,7 @@ fun SplashScreen(
             
             // Tagline
             Text(
-                text = "Moode Audio Controller",
+                text = stringResource(R.string.splash_tagline),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),

@@ -111,7 +111,7 @@ fun MoodroidTopBar(
                 if (!isLandscape) {
                     Image(
                         painter = painterResource(id = R.drawable.img),
-                        contentDescription = "Moodroid",
+                        contentDescription = stringResource(R.string.main_app_icon_description),
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -138,7 +138,7 @@ fun MoodroidTopBar(
                         action()
                     },
                 ) {
-                    Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                    Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.main_settings_button))
                 }
             }
         },

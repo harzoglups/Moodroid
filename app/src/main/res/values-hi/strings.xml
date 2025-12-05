@@ -1,0 +1,52 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Moodroid</string>
+    <string name="settings_views_title">Moodroid - सेटिंग्स</string>
+    <string name="main_view_title">Moodroid</string>
+    
+    <!-- Default Values -->
+    <string name="url">http://moode.local</string>
+    <string name="volume_step">1</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Moode Audio नियंत्रक</string>
+    <string name="splash_logo_description">Moodroid लोगो</string>
+    
+    <!-- Settings Sections -->
+    <string name="settings_connection_title">कनेक्शन सेटिंग्स</string>
+    <string name="settings_history_title">URL इतिहास</string>
+    <string name="settings_about_title">Moodroid के बारे में</string>
+    
+    <!-- Connection Settings -->
+    <string name="settings_url_label">Moode Audio URL</string>
+    <string name="settings_url_error">URL http:// या https:// से शुरू होना चाहिए</string>
+    <string name="settings_volume_step_label">वॉल्यूम चरण</string>
+    <string name="settings_volume_step_error">1 से 100 के बीच की संख्या होनी चाहिए</string>
+    
+    <!-- URL History -->
+    <string name="history_recent_servers">हाल के Moode सर्वर:</string>
+    <string name="history_clear_button">इतिहास साफ़ करें</string>
+    <string name="history_show_dropdown">URL इतिहास दिखाएं</string>
+    
+    <!-- About Section -->
+    <string name="about_version">संस्करण %s</string>
+    <string name="about_features_title">विशेषताएं:</string>
+    <string name="about_description">Moodroid एक ओपन-सोर्स Android एप्लिकेशन है Moode Audio के लिए, जो आपके Moode संगीत सर्वर का निर्बाध नियंत्रण प्रदान करता है।</string>
+    
+    <!-- Features List -->
+    <string name="feature_webview">Moode Audio के लिए WebView रैपर</string>
+    <string name="feature_volume_control">हार्डवेयर वॉल्यूम बटन नियंत्रण</string>
+    <string name="feature_connection_status">वास्तविक समय कनेक्शन स्थिति</string>
+    <string name="feature_performance">प्रदर्शन-अनुकूलित रेंडरिंग</string>
+    <string name="feature_url_history">URL इतिहास और पसंदीदा</string>
+    <string name="feature_input_validation">इनपुट सत्यापन</string>
+    <string name="feature_clean_architecture">Hilt DI के साथ Clean Architecture</string>
+    
+    <!-- Main Screen -->
+    <string name="main_app_icon_description">Moodroid</string>
+    <string name="main_settings_button">सेटिंग्स</string>
+    <string name="main_refresh_button">ताज़ा करें</string>
+    
+    <!-- Navigation -->
+    <string name="back_button">वापस</string>
+</resources>

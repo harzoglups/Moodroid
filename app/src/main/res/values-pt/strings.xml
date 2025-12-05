@@ -1,0 +1,52 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">Moodroid</string>
+    <string name="settings_views_title">Moodroid - Configurações</string>
+    <string name="main_view_title">Moodroid</string>
+    
+    <!-- Default Values -->
+    <string name="url">http://moode.local</string>
+    <string name="volume_step">1</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Controlador Moode Audio</string>
+    <string name="splash_logo_description">Logotipo Moodroid</string>
+    
+    <!-- Settings Sections -->
+    <string name="settings_connection_title">Configurações de conexão</string>
+    <string name="settings_history_title">Histórico de URLs</string>
+    <string name="settings_about_title">Sobre Moodroid</string>
+    
+    <!-- Connection Settings -->
+    <string name="settings_url_label">URL do Moode Audio</string>
+    <string name="settings_url_error">A URL deve começar com http:// ou https://</string>
+    <string name="settings_volume_step_label">Passo de volume</string>
+    <string name="settings_volume_step_error">Deve ser um número entre 1 e 100</string>
+    
+    <!-- URL History -->
+    <string name="history_recent_servers">Servidores Moode recentes:</string>
+    <string name="history_clear_button">Limpar histórico</string>
+    <string name="history_show_dropdown">Mostrar histórico de URLs</string>
+    
+    <!-- About Section -->
+    <string name="about_version">Versão %s</string>
+    <string name="about_features_title">Recursos:</string>
+    <string name="about_description">Moodroid é uma aplicação Android de código aberto para Moode Audio, proporcionando controle perfeito do seu servidor de música Moode.</string>
+    
+    <!-- Features List -->
+    <string name="feature_webview">Interface WebView para Moode Audio</string>
+    <string name="feature_volume_control">Controle de volume com botões físicos</string>
+    <string name="feature_connection_status">Status de conexão em tempo real</string>
+    <string name="feature_performance">Renderização otimizada para desempenho</string>
+    <string name="feature_url_history">Histórico e favoritos de URLs</string>
+    <string name="feature_input_validation">Validação de entradas</string>
+    <string name="feature_clean_architecture">Clean Architecture com Hilt DI</string>
+    
+    <!-- Main Screen -->
+    <string name="main_app_icon_description">Moodroid</string>
+    <string name="main_settings_button">Configurações</string>
+    <string name="main_refresh_button">Atualizar</string>
+    
+    <!-- Navigation -->
+    <string name="back_button">Voltar</string>
+</resources>
