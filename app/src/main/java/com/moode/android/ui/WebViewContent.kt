@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +31,7 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
     val url = settingsViewModel.url.value ?: context.getString(R.string.url)
     var webView by remember { mutableStateOf<WebView?>(null) }
     var loading by remember { mutableStateOf(true) }
+    var currentUrl by remember { mutableStateOf(url) }
 
     fun createWebView(initialUrl: String): WebView {
         return WebView(context).apply {
@@ -41,14 +43,15 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                 ) {
                     super.onPageStarted(view, url, favicon)
                     loading = true
-                    Log.d(MainActivity.TAG, "onPageStarted")
+                    Log.d(MainActivity.TAG, "onPageStarted: $url")
                 }
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     val progress = view?.progress
-                    Log.d(MainActivity.TAG, "onPageFinished - Progress = $progress")
-                    if (progress == 100) loading = false
+                    Log.d(MainActivity.TAG, "onPageFinished - Progress = $progress, URL = $url")
+                    // Always set loading to false when page finishes, regardless of progress
+                    loading = false
                 }
 
                 override fun onReceivedError(
@@ -57,15 +60,20 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                     error: WebResourceError?
                 ) {
                     super.onReceivedError(view, request, error)
-                    loading = false
-                    Log.d(MainActivity.TAG, "onReceivedError - Error: $error")
+                    // Only set loading to false if this is the main frame
+                    if (request?.isForMainFrame == true) {
+                        loading = false
+                        Log.e(MainActivity.TAG, "onReceivedError (main frame) - Error: ${error?.description}")
+                    } else {
+                        Log.d(MainActivity.TAG, "onReceivedError (subframe) - Error: ${error?.description}")
+                    }
                 }
 
                 override fun onRenderProcessGone(
                     view: WebView?,
                     detail: RenderProcessGoneDetail?
                 ): Boolean {
-                    Log.d(MainActivity.TAG, "onRenderProcessGone: $detail")
+                    Log.e(MainActivity.TAG, "onRenderProcessGone: $detail")
                     (context as? MainActivity)?.let { activity ->
                         activity.runOnUiThread {
                             view?.destroy()
@@ -100,6 +108,17 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
         }
     }
 
+    // Handle URL changes
+    LaunchedEffect(url) {
+        if (url != currentUrl) {
+            Log.i(MainActivity.TAG, "URL changed from $currentUrl to $url")
+            currentUrl = url
+            loading = true
+            webView?.loadUrl(url)
+        }
+    }
+
+    // Initialize WebView only once
     if (webView == null) {
         webView = createWebView(url)
         webView?.loadUrl(url)
@@ -130,11 +149,16 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                         .fillMaxSize()
                         .padding(pv),
                     factory = {
-                        webView ?: createWebView(url).also { webView = it }
+                        Log.i(MainActivity.TAG, "AndroidView factory creating WebView for URL: $url")
+                        webView ?: createWebView(url).also { 
+                            webView = it
+                            it.loadUrl(url)
+                        }
                     },
                     update = {
-                        Log.i(MainActivity.TAG, "Loading URL $url")
-                        it.loadUrl(url)
+                        // Do NOT reload here - this is called on every recomposition
+                        // URL changes are handled by LaunchedEffect above
+                        Log.d(MainActivity.TAG, "AndroidView update block (no action taken)")
                     }
                 )
                 if (loading) {
@@ -151,7 +175,9 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
 
     DisposableEffect(Unit) {
         onDispose {
+            Log.i(MainActivity.TAG, "Disposing WebView")
             webView?.destroy()
+            webView = null
         }
     }
 }
