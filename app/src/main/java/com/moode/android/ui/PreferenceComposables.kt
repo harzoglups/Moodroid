@@ -48,6 +48,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.moode.android.BuildConfig
 import com.moode.android.R
 import com.moode.android.viewmodel.SettingsViewModel
 
@@ -294,7 +295,7 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
         SettingsSection(title = "About Moodroid") {
             Column {
                 Text(
-                    text = "Version 1.0.0",
+                    text = "Version ${BuildConfig.VERSION_NAME}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
