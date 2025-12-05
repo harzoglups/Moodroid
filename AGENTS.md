@@ -57,3 +57,41 @@
 - **Error Handling**: Use try-catch blocks, log with `Log.i/e(TAG, message)`, `TAG` as companion object constant
 - **Async**: Use coroutines with `viewModelScope`/`lifecycleScope`, avoid blocking calls on main thread
 - **DataStore**: Use Preferences DataStore for key-value storage, expose as `Flow` and convert to `LiveData` with `asLiveData()`
+
+## Release Management
+**IMPORTANT**: This project uses automated release workflows for version management.
+
+### Creating Releases
+**Three methods available** (see `RELEASE_GUIDE.md` for details):
+
+1. **Auto Release (Recommended)**: Trigger GitHub Action manually
+   - Go to GitHub Actions → "Auto Release" → "Run workflow"
+   - Automatically analyzes commits, determines version bump, builds APK, creates release
+   - No manual version editing required
+
+2. **Local Script**: Use `./create-release.sh [major|minor|patch]`
+   - Calculates next version, updates `build.gradle.kts`, commits changes, creates tag
+   - Push tag to trigger automated build and release
+
+3. **Manual Tag**: Create and push a tag (e.g., `git tag -a v1.2.0 -m "Release v1.2.0"`)
+   - GitHub Actions automatically builds and creates release
+
+### Version Management
+- **NEVER manually edit** `versionName` or `versionCode` in `app/build.gradle.kts`
+- The release system automatically updates these values
+- `versionCode` is auto-incremented with each release
+- `versionName` follows semantic versioning (MAJOR.MINOR.PATCH)
+
+### Conventional Commits for Releases
+Commit message format determines version bumps:
+- `feat:` → MINOR version bump (new features)
+- `fix:`, `docs:`, `perf:`, `refactor:`, `chore:` → PATCH version bump
+- `feat!:`, `fix!:`, `BREAKING CHANGE:` → MAJOR version bump (breaking changes)
+
+### Release Workflow Files
+- `.github/workflows/auto-release.yml` - Fully automated release workflow
+- `.github/workflows/release-on-tag.yml` - Triggered by tag push
+- `update-version.sh` - Script to update version in build.gradle.kts
+- `create-release.sh` - Local script for creating releases
+- `RELEASE_GUIDE.md` - Complete release documentation
+

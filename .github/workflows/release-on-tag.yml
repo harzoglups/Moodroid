@@ -1,0 +1,157 @@
+name: Build and Release on Tag
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+          
+      - name: Grant execute permission for scripts
+        run: |
+          chmod +x gradlew
+          chmod +x update-version.sh
+          
+      - name: Get previous tag
+        id: previous_tag
+        run: |
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
+          echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
+          echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
+          echo "Current tag: $CURRENT_TAG"
+          echo "Previous tag: $PREVIOUS_TAG"
+          
+      - name: Update version in build.gradle.kts
+        run: |
+          CURRENT_TAG="${{ steps.previous_tag.outputs.current_tag }}"
+          ./update-version.sh "$CURRENT_TAG"
+          echo "✅ Version updated to $CURRENT_TAG"
+          
+      - name: Create debug keystore for signing
+        run: |
+          mkdir -p ~/.android
+          keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          
+      - name: Generate release notes from commits
+        id: release_notes
+        run: |
+          CURRENT_TAG="${{ steps.previous_tag.outputs.current_tag }}"
+          PREVIOUS_TAG="${{ steps.previous_tag.outputs.previous_tag }}"
+          
+          # Get commits between tags
+          if [ -z "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log --pretty=format:"- %s" --no-merges)
+          else
+            COMMITS=$(git log ${PREVIOUS_TAG}..${CURRENT_TAG} --pretty=format:"- %s" --no-merges)
+          fi
+          
+          # Detect bump type from commits
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE\|^- feat!:\|^- fix!:"; then
+            BUMP_TYPE="major"
+          elif echo "$COMMITS" | grep -q "^- feat"; then
+            BUMP_TYPE="minor"
+          else
+            BUMP_TYPE="patch"
+          fi
+          
+          # Categorize commits
+          FEATURES=$(echo "$COMMITS" | grep "^- feat" || true)
+          FIXES=$(echo "$COMMITS" | grep "^- fix" || true)
+          DOCS=$(echo "$COMMITS" | grep "^- docs" || true)
+          REFACTOR=$(echo "$COMMITS" | grep "^- refactor" || true)
+          PERF=$(echo "$COMMITS" | grep "^- perf" || true)
+          CHORE=$(echo "$COMMITS" | grep "^- chore" || true)
+          OTHER=$(echo "$COMMITS" | grep -v "^- feat\|^- fix\|^- docs\|^- refactor\|^- perf\|^- chore" || true)
+          
+          # Build release notes
+          echo "## What's Changed" > release_notes.md
+          echo "" >> release_notes.md
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "Version bump: $BUMP_TYPE ($PREVIOUS_TAG → $CURRENT_TAG)" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+          if [ -n "$FEATURES" ]; then
+            echo "### ✨ Features" >> release_notes.md
+            echo "$FEATURES" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+          if [ -n "$FIXES" ]; then
+            echo "### 🐛 Bug Fixes" >> release_notes.md
+            echo "$FIXES" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+          if [ -n "$PERF" ]; then
+            echo "### ⚡ Performance" >> release_notes.md
+            echo "$PERF" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+          if [ -n "$REFACTOR" ]; then
+            echo "### ♻️ Refactoring" >> release_notes.md
+            echo "$REFACTOR" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+          if [ -n "$DOCS" ]; then
+            echo "### 📚 Documentation" >> release_notes.md
+            echo "$DOCS" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+          if [ -n "$CHORE" ]; then
+            echo "### 🔧 Chores" >> release_notes.md
+            echo "$CHORE" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+          if [ -n "$OTHER" ]; then
+            echo "### Other Changes" >> release_notes.md
+            echo "$OTHER" >> release_notes.md
+            echo "" >> release_notes.md
+          fi
+          
+      - name: Build Release APK
+        run: |
+          export JAVA_HOME="${JAVA_HOME_17_X64}"
+          ./gradlew assembleRelease
+        
+      - name: Prepare APK
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk Moodroid-${{ steps.previous_tag.outputs.current_tag }}.apk
+          echo "APK prepared: Moodroid-${{ steps.previous_tag.outputs.current_tag }}.apk"
+          ls -lh Moodroid-*.apk
+          
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.previous_tag.outputs.current_tag }}
+          name: Release ${{ steps.previous_tag.outputs.current_tag }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            Moodroid-${{ steps.previous_tag.outputs.current_tag }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
