@@ -35,6 +35,9 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
 
     fun createWebView(initialUrl: String): WebView {
         return WebView(context).apply {
+            // Enable hardware acceleration for better rendering performance
+            setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
+            
             webViewClient = object : WebViewClient() {
                 override fun onPageStarted(
                     view: WebView?,
@@ -89,7 +92,15 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                 loadWithOverviewMode = true
                 useWideViewPort = true
                 domStorageEnabled = true
-                cacheMode = WebSettings.LOAD_DEFAULT
+                
+                // Intelligent caching strategy - prefer cache when available to speed up loads
+                cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                
+                // Enable Safe Browsing for security
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    safeBrowsingEnabled = true
+                }
+                
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 userAgentString = WebSettings.getDefaultUserAgent(context)
                 databaseEnabled = true

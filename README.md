@@ -3,7 +3,10 @@ Android Application Wrapper for Moode Audio UI with Volume Button Control
 
 ## Features
 
-* WebView wrapper for Moode Audio web interface
+* WebView wrapper for Moode Audio web interface with performance optimizations:
+  - Hardware acceleration enabled for smooth rendering
+  - Intelligent caching for faster page loads
+  - Safe Browsing enabled for security (Android 8.0+)
 * Hardware volume button control (volume up/down buttons adjust Moode volume)
 * Connection status indicator in the top bar:
   - Green dot: Connected to Moode server
