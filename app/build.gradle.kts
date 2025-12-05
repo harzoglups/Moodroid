@@ -23,13 +23,31 @@ android {
         buildConfigField("String", "VERSION_NAME", "\"${versionName}\"")
     }
 
+    signingConfigs {
+        // Use debug signing for release builds (no keystore needed)
+        getByName("debug") {
+            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // Enable all optimizations
+            isMinifyEnabled = true
+            isShrinkResources = true
+            
+            // Use ProGuard for code optimization and obfuscation
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            
+            // Sign with debug key (Gradle's default debug signing config)
+            // This makes APKs installable without managing production keystores
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
