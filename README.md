@@ -1,6 +1,17 @@
 # Moodroid
 Android Application Wrapper for Moode Audio UI with Volume Button Control
 
+## Features
+
+* WebView wrapper for Moode Audio web interface
+* Hardware volume button control (volume up/down buttons adjust Moode volume)
+* Connection status indicator in the top bar:
+  - Green dot: Connected to Moode server
+  - Red dot: Connection failed or lost
+  - Gray dot: Connection status unknown (initial state)
+* Configurable volume step size (1-100)
+* Input validation for URL and volume settings
+
 ## Installation Guide
 
 ### Step 1: Download the Project

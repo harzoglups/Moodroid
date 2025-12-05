@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.moode.android.ui.MainScreen
+import com.moode.android.viewmodel.ConnectionStatus
 import com.moode.android.viewmodel.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,8 +31,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
         settingsViewModel.url.observe(this) { newUrl ->
+            Log.i(TAG, "URL observer: URL changed to: $newUrl")
             url = newUrl
+            // Test connection when URL is loaded or changed
+            testConnection()
         }
 
         settingsViewModel.volumeStep.observe(this) { newVolumeStep ->
@@ -39,6 +44,18 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             MainScreen(settingsViewModel = settingsViewModel)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Test connection when returning to the main screen
+        // (the URL observer already handles the initial load)
+        if (url.isNotEmpty()) {
+            Log.i(TAG, "onResume: testing connection for URL: $url")
+            testConnection()
+        } else {
+            Log.i(TAG, "onResume: URL not loaded yet, skipping test")
         }
     }
 
@@ -67,6 +84,42 @@ class MainActivity : ComponentActivity() {
             else -> super.onKeyDown(keyCode, event)
         }
     }
+    
+    private fun testConnection() {
+        if (url.isEmpty()) {
+            Log.i(TAG, "URL is empty, skipping connection test")
+            return
+        }
+        
+        lifecycleScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val request = Request.Builder()
+                        .url(url)
+                        .head() // Use HEAD request to test connectivity without downloading content
+                        .build()
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) {
+                            throw IOException("Server returned error: ${response.code}")
+                        }
+                        Log.i(TAG, "Connection test successful: ${response.code}")
+                    }
+                }
+                // Update connection status to connected on main thread
+                withContext(Dispatchers.Main) {
+                    settingsViewModel.updateConnectionStatus(ConnectionStatus.CONNECTED)
+                    Log.i(TAG, "Connection status updated to CONNECTED")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Connection test failed", e)
+                // Update connection status to disconnected on main thread
+                withContext(Dispatchers.Main) {
+                    settingsViewModel.updateConnectionStatus(ConnectionStatus.DISCONNECTED)
+                    Log.i(TAG, "Connection status updated to DISCONNECTED")
+                }
+            }
+        }
+    }
 
     private fun sendVolumeCommand(url: String) {
         lifecycleScope.launch {
@@ -82,8 +135,18 @@ class MainActivity : ComponentActivity() {
                         Log.i(TAG, "Volume command sent successfully: ${response.code}")
                     }
                 }
+                // Update connection status to connected on main thread
+                withContext(Dispatchers.Main) {
+                    settingsViewModel.updateConnectionStatus(ConnectionStatus.CONNECTED)
+                    Log.i(TAG, "Volume command status updated to CONNECTED")
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to send volume command", e)
+                // Update connection status to disconnected on main thread
+                withContext(Dispatchers.Main) {
+                    settingsViewModel.updateConnectionStatus(ConnectionStatus.DISCONNECTED)
+                    Log.i(TAG, "Volume command status updated to DISCONNECTED")
+                }
                 // Show error feedback on main thread
                 withContext(Dispatchers.Main) {
                     Toast.makeText(

@@ -39,7 +39,7 @@ This document tracks potential improvements and features for the Moodroid applic
 - **Current**: No feedback when volume buttons are pressed, no indication if Moode server is reachable
 - **Issue**: User doesn't know if commands are working
 - **Improvement**: Add connection status indicator + visual/haptic feedback on volume button press
-- **Status**: Pending
+- **Status**: ✅ Completed
 
 ### 6. Swipe to Refresh
 **Priority: Medium**
@@ -127,3 +127,4 @@ This document tracks potential improvements and features for the Moodroid applic
 - ✅ Network Error Handling (coroutines + Toast feedback)
 - ✅ OkHttpClient Lifecycle Management
 - ✅ User Input Validation (URL and Volume Step with error messages)
+- ✅ Connection Status Indicator (colored dot in top bar + haptic feedback)

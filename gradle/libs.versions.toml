@@ -36,6 +36,7 @@ androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbindin
 androidx-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "nav_version"}
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore"}
 androidx-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "livedata"}
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version = "1.6.8"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

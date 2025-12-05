@@ -3,12 +3,14 @@ package com.moode.android.ui
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
@@ -22,8 +24,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.moode.android.R
+import com.moode.android.viewmodel.ConnectionStatus
 import com.moode.android.viewmodel.SettingsViewModel
 
 enum class MoodroidScreens(@StringRes val title: Int) {
@@ -58,7 +63,8 @@ fun MainScreen(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
-                action = { navController.navigate(MoodroidScreens.SETTINGS.name) }
+                action = { navController.navigate(MoodroidScreens.SETTINGS.name) },
+                settingsViewModel = settingsViewModel
             )
         }
     ) { innerPadding ->
@@ -85,8 +91,11 @@ fun MoodroidTopBar(
     currentScreen: MoodroidScreens,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    action: () -> Unit
+    action: () -> Unit,
+    settingsViewModel: SettingsViewModel
 ) {
+    val connectionStatus by settingsViewModel.connectionStatus.observeAsState(ConnectionStatus.UNKNOWN)
+    
     TopAppBar(
         colors = topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -101,6 +110,18 @@ fun MoodroidTopBar(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(stringResource(currentScreen.title))
+                Spacer(modifier = Modifier.width(8.dp))
+                // Connection status indicator
+                val statusColor = when (connectionStatus) {
+                    ConnectionStatus.CONNECTED -> Color(0xFF4CAF50) // Green
+                    ConnectionStatus.DISCONNECTED -> Color(0xFFF44336) // Red
+                    ConnectionStatus.UNKNOWN -> Color(0xFF9E9E9E) // Gray
+                }
+                androidx.compose.foundation.layout.Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(statusColor, CircleShape)
+                )
             }
         },
         actions = {
