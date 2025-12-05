@@ -42,7 +42,8 @@
 1. Build the application: `./gradlew assembleDebug`
 2. Install it on the connected device: `./gradlew installDebug`
 3. Launch the application: `~/Library/Android/sdk/platform-tools/adb shell am start -n com.moode.android/.MainActivity`
-4. Wait for user feedback before proceeding
+4. Update relevant documentation (README.md, etc.) to reflect code changes, bug fixes, or new features
+5. Wait for user feedback before proceeding
 
 ## Code Style
 - **Language**: Kotlin 1.9.10, JVM target 1.8

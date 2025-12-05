@@ -39,5 +39,4 @@ Download Android Studio from [here](https://developer.android.com/studio)
 
 ## Known Issues
 
-* Occasionally, a white screen may appear. If refreshing (refresh button) does not resolve the issue, navigate to the preferences screen and then return to the main screen.
 * The URL `http://moode.local` might not always work. Setting the IP address directly in the settings screen (e.g., `http://xxx.xxx.xxx.xxx`) tends to yield better results.
