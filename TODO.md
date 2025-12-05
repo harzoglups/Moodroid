@@ -9,7 +9,7 @@ This document tracks potential improvements and features for the Moodroid applic
 - **Current**: `sendVolumeCommand` uses basic `thread{}` instead of coroutines (MainActivity.kt:61-74)
 - **Issue**: No user feedback on failure
 - **Improvement**: Use coroutines + display Toast/Snackbar on error
-- **Status**: Pending
+- **Status**: ✅ Completed
 
 ### 2. User Input Validation
 **Priority: High**
@@ -23,7 +23,7 @@ This document tracks potential improvements and features for the Moodroid applic
 - **Current**: HTTP client is never closed (MainActivity.kt:22)
 - **Issue**: Resource leak
 - **Improvement**: Close client in `onDestroy()`
-- **Status**: Pending
+- **Status**: ✅ Completed
 
 ### 4. WebView Performance
 **Priority: Low**
@@ -124,3 +124,5 @@ This document tracks potential improvements and features for the Moodroid applic
 
 ## Completed
 - ✅ Fix WebView white screen issue
+- ✅ Network Error Handling (coroutines + Toast feedback)
+- ✅ OkHttpClient Lifecycle Management

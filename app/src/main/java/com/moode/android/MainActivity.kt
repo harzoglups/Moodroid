@@ -3,15 +3,19 @@ package com.moode.android
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.moode.android.ui.MainScreen
 import com.moode.android.viewmodel.SettingsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -38,6 +42,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        client.dispatcher.executorService.shutdown()
+        client.connectionPool.evictAll()
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         val volumeCommand: String = "$url/command/?cmd=set_volume%20-"
 
@@ -59,16 +69,29 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun sendVolumeCommand(url: String) {
-        thread {
+        lifecycleScope.launch {
             try {
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
-                client.newCall(request).execute().use { response ->
-                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                withContext(Dispatchers.IO) {
+                    val request = Request.Builder()
+                        .url(url)
+                        .build()
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) {
+                            throw IOException("Server returned error: ${response.code}")
+                        }
+                        Log.i(TAG, "Volume command sent successfully: ${response.code}")
+                    }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e(TAG, "Failed to send volume command", e)
+                // Show error feedback on main thread
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Failed to adjust volume: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
