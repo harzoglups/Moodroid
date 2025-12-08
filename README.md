@@ -1,12 +1,27 @@
 # Moodroid
-Android Application Wrapper for Moode Audio UI with Volume Button Control
+Android Remote Control Application for Moode Audio Player
+
+## What is Moodroid?
+
+Moodroid is a **remote control app** for [Moode Audio Player](https://moodeaudio.org/) running on Raspberry Pi. It provides a convenient Android interface to control your Moode audio system.
+
+**Important**: This app does NOT play audio on your Android device. It acts as a remote control for your Moode Audio Player (Raspberry Pi), which outputs audio through its connected DAC/amplifier/speakers.
+
+```
+Internet → Raspberry Pi (Moode) → DAC → Amplifier → HiFi Speakers
+                ↑
+                │ Control via Moodroid App
+                │
+           Android Device
+```
 
 ## Features
 
 * WebView wrapper for Moode Audio web interface with performance optimizations:
   - Hardware acceleration enabled for smooth rendering
-  - Intelligent caching for faster page loads
+  - Optimized cache settings for audio streaming stability
   - Safe Browsing enabled for security (Android 8.0+)
+  - Wake lock to maintain stable connection to Moode server
 * Hardware volume button control (volume up/down buttons adjust Moode volume)
 * Connection status indicator in the top bar:
   - Green dot: Connected to Moode server
@@ -24,6 +39,14 @@ Android Application Wrapper for Moode Audio UI with Volume Button Control
 * Floating refresh button for manual page reload
 * Configurable volume step size (1-100)
 * Input validation for URL and volume settings
+
+## Audio Streaming Recommendations
+
+For best streaming stability on Moode Audio Player:
+- **Recommended**: AAC streams (faster startup, more stable)
+- **Not recommended**: HLS streams (.m3u8) - slower startup, more complex
+
+Note: The audio format affects playback on your Raspberry Pi, not the Android app.
 
 ## Architecture
 

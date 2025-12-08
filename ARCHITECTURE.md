@@ -6,6 +6,50 @@ This document describes the architecture of the Moodroid Android application fol
 
 Moodroid is built using **Clean Architecture** with clear separation between domain, data, and presentation layers. The architecture follows modern Android development best practices with Hilt for dependency injection, Kotlin Coroutines for asynchronous operations, and Jetpack Compose for UI.
 
+## System Architecture
+
+**IMPORTANT**: Moodroid is a **remote control application** for Moode Audio Player. It does NOT play audio locally on the Android device.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    Physical Architecture                      │
+│                                                               │
+│  Internet (Radio streams)                                     │
+│      ↓                                                        │
+│  Raspberry Pi (Moode Audio Player)                           │
+│      ↓                                                        │
+│  DAC → Amplifier → HiFi Speakers                             │
+│      ↑                                                        │
+│      │ HTTP/WebSocket (control commands)                     │
+│      │                                                        │
+│  Android Device (Moodroid App)                               │
+│      - WebView displays Moode web interface                  │
+│      - Captures volume buttons                               │
+│      - Sends control commands to Raspberry Pi                │
+│      - Does NOT play audio locally                           │
+│                                                               │
+│  Can also be controlled from:                                │
+│      - PC (any web browser)                                  │
+│      - Other phones (any web browser)                        │
+│      - Any device with network access                        │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Audio Streaming Optimizations
+
+The app includes wake lock and WebView optimizations for audio streaming stability:
+
+- **Wake Lock**: Prevents Android from putting WiFi/CPU to sleep
+- **Purpose**: Maintains stable HTTP/WebSocket connection to Moode server
+- **Impact**: Keeps the web interface responsive and connection indicator accurate
+- **Note**: These optimizations affect the control interface stability, NOT the audio playback itself (which happens on the Raspberry Pi)
+
+### Audio Format Considerations
+
+- **AAC streams**: Recommended for faster startup and better stability on Moode
+- **HLS streams (.m3u8)**: More complex segmented format, may cause slower startup
+- The audio format affects the **Raspberry Pi playback**, not the Android app
+
 ## Architecture Diagram
 
 ```
