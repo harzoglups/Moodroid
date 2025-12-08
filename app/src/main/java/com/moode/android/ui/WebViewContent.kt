@@ -33,7 +33,10 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
-    val url = settings.url.ifEmpty { context.getString(R.string.url) }
+    val resolvedUrl by settingsViewModel.resolvedUrl.collectAsStateWithLifecycle()
+    val displayUrl = settings.url.ifEmpty { context.getString(R.string.url) }
+    // Use resolved URL for WebView, fall back to display URL if resolution hasn't completed yet
+    val url = resolvedUrl ?: displayUrl
     var webView by remember { mutableStateOf<WebView?>(null) }
     var loading by remember { mutableStateOf(true) }
     var currentUrl by remember { mutableStateOf(url) }

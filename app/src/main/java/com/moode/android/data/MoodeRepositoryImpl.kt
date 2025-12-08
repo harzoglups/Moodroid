@@ -22,4 +22,8 @@ class MoodeRepositoryImpl @Inject constructor(
         val commandUrl = "$url/command/?cmd=set_volume%20-$command%20$step"
         return moodeRemoteDataSource.sendCommand(commandUrl)
     }
+    
+    override suspend fun resolveUrl(url: String): String {
+        return moodeRemoteDataSource.resolveUrl(url)
+    }
 }

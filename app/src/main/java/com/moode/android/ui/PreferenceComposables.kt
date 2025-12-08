@@ -158,6 +158,17 @@ fun SettingsSection(
     }
 }
 
+/**
+ * Normalizes URL by adding http:// prefix if missing
+ */
+private fun normalizeUrl(url: String): String {
+    return when {
+        url.isEmpty() -> url
+        url.startsWith("http://") || url.startsWith("https://") -> url
+        else -> "http://$url"
+    }
+}
+
 @Composable
 fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
     val context = LocalContext.current
@@ -184,16 +195,18 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
                     imeAction = ImeAction.Done
                 ),
                 validator = { url ->
-                    url.isEmpty() || (url.matches(Regex("^https?://.*")) && url.length > 10)
+                    // Accept empty or valid http/https URLs, OR hostnames that will be normalized
+                    url.isEmpty() || url.matches(Regex("^https?://.*")) || url.contains(".")
                 },
                 errorMessage = stringResource(R.string.settings_url_error),
                 updateSetting = { url ->
-                    settingsViewModel.setUrl(url)
+                    settingsViewModel.setUrl(normalizeUrl(url))
                 },
                 onDone = { url ->
+                    val normalized = normalizeUrl(url)
                     // Add to history when user presses Done/Enter
-                    if (url.matches(Regex("^https?://.*")) && url.length > 10) {
-                        settingsViewModel.addUrlToHistory(url)
+                    if (normalized.matches(Regex("^https?://.*")) && normalized.length > 10) {
+                        settingsViewModel.addUrlToHistory(normalized)
                     }
                 },
                 trailingIcon = if (urlHistory.isNotEmpty()) {

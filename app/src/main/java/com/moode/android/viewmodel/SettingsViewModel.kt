@@ -10,6 +10,7 @@ import com.moode.android.domain.usecase.AddUrlToHistoryUseCase
 import com.moode.android.domain.usecase.ClearUrlHistoryUseCase
 import com.moode.android.domain.usecase.GetSettingsUseCase
 import com.moode.android.domain.usecase.GetUrlHistoryUseCase
+import com.moode.android.domain.usecase.ResolveUrlUseCase
 import com.moode.android.domain.usecase.SendVolumeCommandUseCase
 import com.moode.android.domain.usecase.TestConnectionUseCase
 import com.moode.android.domain.usecase.UpdateUrlUseCase
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,7 +38,8 @@ class SettingsViewModel @Inject constructor(
     private val addUrlToHistoryUseCase: AddUrlToHistoryUseCase,
     private val clearUrlHistoryUseCase: ClearUrlHistoryUseCase,
     private val testConnectionUseCase: TestConnectionUseCase,
-    private val sendVolumeCommandUseCase: SendVolumeCommandUseCase
+    private val sendVolumeCommandUseCase: SendVolumeCommandUseCase,
+    private val resolveUrlUseCase: ResolveUrlUseCase
 ) : ViewModel() {
     
     companion object {
@@ -50,6 +53,10 @@ class SettingsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = Settings(url = "", volumeStep = 10)
         )
+    
+    // Resolved URL state (mDNS .local hostnames converted to IPs)
+    private val _resolvedUrl = MutableStateFlow<String?>(null)
+    val resolvedUrl: StateFlow<String?> = _resolvedUrl.asStateFlow()
     
     // URL history state
     val urlHistory: StateFlow<List<String>> = getUrlHistoryUseCase()
@@ -66,6 +73,25 @@ class SettingsViewModel @Inject constructor(
     // Error state
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+    
+    init {
+        // Resolve URL whenever settings URL changes
+        viewModelScope.launch {
+            settings.map { it.url }.collect { url ->
+                if (url.isNotEmpty()) {
+                    Log.i(TAG, "Settings URL changed, resolving: $url")
+                    val resolved = resolveUrlUseCase(url)
+                    Log.i(TAG, "URL resolved to: $resolved")
+                    _resolvedUrl.value = resolved
+                    
+                    // Test connection with resolved URL
+                    if (resolved != null) {
+                        testConnection(resolved)
+                    }
+                }
+            }
+        }
+    }
     
     fun setUrl(url: String) {
         viewModelScope.launch {

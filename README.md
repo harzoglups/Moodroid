@@ -22,6 +22,7 @@ Internet → Raspberry Pi (Moode) → DAC → Amplifier → HiFi Speakers
   - Optimized cache settings for audio streaming stability
   - Safe Browsing enabled for security (Android 8.0+)
   - Wake lock to maintain stable connection to Moode server
+* **Automatic mDNS resolution**: Enter `moode.local` and the app automatically discovers your Moode server on the network
 * Hardware volume button control (volume up/down buttons adjust Moode volume)
 * Connection status indicator in the top bar:
   - Green dot: Connected to Moode server
@@ -63,7 +64,7 @@ app/
 ├── data/                     # Data layer
 │   ├── source/
 │   │   ├── local/           # Local data source (DataStore)
-│   │   └── remote/          # Remote data source (OkHttp)
+│   │   └── remote/          # Remote data source (OkHttp, mDNS resolver)
 │   ├── MoodeRepositoryImpl  # Moode API implementation
 │   └── SettingsRepositoryImpl # Settings storage implementation
 ├── di/                       # Dependency injection (Hilt modules)
@@ -152,11 +153,26 @@ Download Android Studio from [here](https://developer.android.com/studio)
 
 1. Launch Moodroid on your Android device
 2. On first launch, go to Settings (⚙️ icon in the top bar)
-3. Enter your Moode Audio server URL (e.g., `http://192.168.1.100` or `http://moode.local`)
+3. Enter your Moode Audio server URL:
+   - **Recommended**: `moode.local` (automatically discovered via mDNS)
+   - **Alternative**: Direct IP address (e.g., `http://192.168.1.100`)
 4. Optionally adjust the volume step size
 5. Navigate back to see your Moode Audio interface
 6. Use your device's hardware volume buttons to control Moode volume
+7. Check the connection status indicator (green = connected, red = disconnected)
+
+### Network Discovery
+
+Moodroid supports **automatic mDNS discovery**:
+- Simply enter `moode.local` in the URL field
+- The app automatically discovers your Moode server's IP address on the local network
+- Works with any `.local` hostname advertised by Moode
+- No need to manually find and enter IP addresses
+
+If automatic discovery doesn't work:
+- Make sure your Android device is on the same Wi-Fi network as your Moode server
+- Try entering the IP address directly (find it in your router's DHCP client list or Moode's network settings)
 
 ## Known Issues
 
-* The URL `http://moode.local` might not always work. Setting the IP address directly in the settings screen (e.g., `http://xxx.xxx.xxx.xxx`) tends to yield better results.
+None at this time. Previous mDNS resolution issues have been resolved.

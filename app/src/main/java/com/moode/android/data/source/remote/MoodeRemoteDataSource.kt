@@ -7,6 +7,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.net.InetAddress
+import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,10 +17,47 @@ import javax.inject.Singleton
  */
 @Singleton
 class MoodeRemoteDataSource @Inject constructor(
-    private val okHttpClient: OkHttpClient
+    private val okHttpClient: OkHttpClient,
+    private val mdnsResolver: MdnsResolver
 ) {
     companion object {
         private const val TAG = "MoodeRemoteDataSource"
+    }
+    
+    /**
+     * Resolves a URL with mDNS hostname (.local) to an IP-based URL
+     * Returns the original URL if it's already an IP or resolution fails
+     */
+    suspend fun resolveUrl(url: String): String = withContext(Dispatchers.IO) {
+        return@withContext try {
+            val urlObj = URL(url)
+            val hostname = urlObj.host
+            
+            // Check if hostname ends with .local (mDNS)
+            if (!hostname.endsWith(".local", ignoreCase = true)) {
+                Log.d(TAG, "URL doesn't use mDNS, returning as-is: $url")
+                return@withContext url
+            }
+            
+            Log.i(TAG, "Resolving mDNS hostname: $hostname")
+            val address = mdnsResolver.resolveHostname(hostname)
+            
+            if (address != null) {
+                val ipAddress = address.hostAddress
+                val resolvedUrl = url.replace(hostname, ipAddress ?: hostname)
+                Log.i(TAG, "Resolved $hostname -> $ipAddress")
+                Log.i(TAG, "Original URL: $url")
+                Log.i(TAG, "Resolved URL: $resolvedUrl")
+                resolvedUrl
+            } else {
+                Log.w(TAG, "Could not resolve $hostname using mDNS, using original URL")
+                url
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error resolving mDNS hostname: ${e.message}", e)
+            Log.i(TAG, "Fallback: using original URL: $url")
+            url
+        }
     }
     
     suspend fun testConnection(url: String): Result<Unit> = withContext(Dispatchers.IO) {

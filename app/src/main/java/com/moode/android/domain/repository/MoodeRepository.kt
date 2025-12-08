@@ -8,4 +8,5 @@ import com.moode.android.domain.model.Result
 interface MoodeRepository {
     suspend fun testConnection(url: String): Result<Unit>
     suspend fun sendVolumeCommand(url: String, command: String, step: Int): Result<Unit>
+    suspend fun resolveUrl(url: String): String
 }

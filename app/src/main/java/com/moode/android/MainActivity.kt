@@ -58,17 +58,15 @@ class MainActivity : ComponentActivity() {
                     )
                 } else {
                     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+                    val resolvedUrl by settingsViewModel.resolvedUrl.collectAsStateWithLifecycle()
                     val error by settingsViewModel.error.collectAsStateWithLifecycle()
                     
-                    // Test connection when URL changes
-                    LaunchedEffect(settings.url) {
-                        if (settings.url.isNotEmpty()) {
-                            Log.i(TAG, "URL changed to: ${settings.url}")
-                            settingsViewModel.testConnection(settings.url)
-                            
-                            // Add initial URL to history on first load
-                            if (settings.url.matches(Regex("^https?://.*")) && settings.url.length > 10) {
-                                settingsViewModel.addUrlToHistory(settings.url)
+                    // Test connection when resolved URL changes
+                    LaunchedEffect(resolvedUrl) {
+                        resolvedUrl?.let { url ->
+                            if (url.isNotEmpty()) {
+                                Log.i(TAG, "Resolved URL changed to: $url")
+                                settingsViewModel.testConnection(url)
                             }
                         }
                     }
@@ -93,11 +91,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Test connection when returning to the main screen
-        val url = settingsViewModel.settings.value.url
-        if (url.isNotEmpty()) {
-            Log.i(TAG, "onResume: testing connection for URL: $url")
-            settingsViewModel.testConnection(url)
+        // Test connection with resolved URL when returning to the main screen
+        val resolvedUrl = settingsViewModel.resolvedUrl.value
+        if (resolvedUrl != null && resolvedUrl.isNotEmpty()) {
+            Log.i(TAG, "onResume: testing connection for resolved URL: $resolvedUrl")
+            settingsViewModel.testConnection(resolvedUrl)
         }
     }
 
