@@ -74,7 +74,9 @@ fun TextPreference(
             onValueChange = { newValue ->
                 value = newValue
                 isError = !validator(newValue)
-                if (!isError && newValue.isNotEmpty()) {
+                // Only update setting for numeric fields (like volume step)
+                // URL field will be updated only on validation (Done button or focus loss)
+                if (!isError && newValue.isNotEmpty() && keyboardOptions.keyboardType == KeyboardType.Number) {
                     updateSetting(newValue)
                 }
             },
@@ -103,6 +105,8 @@ fun TextPreference(
             keyboardActions = KeyboardActions(
                 onDone = {
                     if (!isError && value.isNotEmpty()) {
+                        // Save the setting when user validates
+                        updateSetting(value)
                         onDone?.invoke(value)
                         focusManager.clearFocus()
                     }
@@ -163,21 +167,6 @@ fun PreferenceScreen(settingsViewModel: SettingsViewModel) {
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
     val currentUrl = settings.url.ifEmpty { context.getString(R.string.url) }
     var showUrlDropdown by remember { mutableStateOf(false) }
-    var lastValidUrl by remember { mutableStateOf("") }
-    
-    // Track the last valid URL during composition
-    if (currentUrl.matches(Regex("^https?://.*")) && currentUrl.length > 10) {
-        lastValidUrl = currentUrl
-    }
-    
-    // Add URL to history when leaving the screen
-    DisposableEffect(Unit) {
-        onDispose {
-            if (lastValidUrl.isNotEmpty()) {
-                settingsViewModel.addUrlToHistory(lastValidUrl)
-            }
-        }
-    }
     
     Column(
         modifier = Modifier
