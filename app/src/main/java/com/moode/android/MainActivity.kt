@@ -1,6 +1,7 @@
 package com.moode.android
 
 import android.os.Bundle
+import android.os.PowerManager
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
@@ -32,9 +33,20 @@ class MainActivity : ComponentActivity() {
     }
 
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Acquire wake lock to prevent network from sleeping during audio streaming
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "Moodroid::AudioStreamingWakeLock"
+        ).apply {
+            acquire()
+            Log.i(TAG, "Wake lock acquired for audio streaming")
+        }
         
         setContent {
             MoodeAndroidTheme {
@@ -104,6 +116,17 @@ class MainActivity : ComponentActivity() {
             }
 
             else -> super.onKeyDown(keyCode, event)
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Release wake lock when activity is destroyed
+        wakeLock?.let {
+            if (it.isHeld) {
+                it.release()
+                Log.i(TAG, "Wake lock released")
+            }
         }
     }
 }

@@ -40,8 +40,11 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
 
     fun createWebView(initialUrl: String): WebView {
         return WebView(context).apply {
-            // Enable hardware acceleration for better rendering performance
+            // Enable hardware acceleration for better rendering and audio performance
             setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
+            
+            // Keep screen on during audio playback to prevent network issues
+            keepScreenOn = false // We use wake lock instead to save battery
             
             webViewClient = object : WebViewClient() {
                 override fun onPageStarted(
@@ -98,8 +101,8 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                 useWideViewPort = true
                 domStorageEnabled = true
                 
-                // Intelligent caching strategy - prefer cache when available to speed up loads
-                cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
+                // Use default cache mode for audio streaming - LOAD_CACHE_ELSE_NETWORK can cause issues
+                cacheMode = WebSettings.LOAD_DEFAULT
                 
                 // Enable Safe Browsing for security
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -116,6 +119,15 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                 allowFileAccess = true
                 javaScriptCanOpenWindowsAutomatically = true
                 loadsImagesAutomatically = true
+                
+                // Optimize for media streaming
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    // Disable offscreen pre-rasterization to save memory and improve streaming
+                    offscreenPreRaster = false
+                }
+                
+                // Set appropriate block network loads setting for streaming
+                blockNetworkLoads = false
             }
             layoutParams = android.view.ViewGroup.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
