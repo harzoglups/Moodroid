@@ -51,7 +51,8 @@ enum class MoodroidScreens(@StringRes val title: Int) {
 @Composable
 fun MainScreen(
     navController: NavHostController = rememberNavController(),
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    retainedWebView: RetainedWebView
 ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -78,7 +79,10 @@ fun MainScreen(
                 .padding(innerPadding)
         ) {
             composable(MoodroidScreens.MAIN.name) {
-                WebViewContent(settingsViewModel = settingsViewModel)
+                WebViewContent(
+                    settingsViewModel = settingsViewModel,
+                    retainedWebView = retainedWebView
+                )
             }
             composable(MoodroidScreens.SETTINGS.name) {
                 PreferenceScreen(settingsViewModel = settingsViewModel)
