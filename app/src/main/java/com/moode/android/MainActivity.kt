@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moode.android.domain.model.ConnectionState
 import com.moode.android.ui.MainScreen
+import com.moode.android.ui.RetainedWebView
 import com.moode.android.ui.SplashScreen
 import com.moode.android.ui.theme.MoodeAndroidTheme
 import com.moode.android.viewmodel.SettingsViewModel
@@ -34,6 +35,12 @@ class MainActivity : ComponentActivity() {
 
     private val settingsViewModel: SettingsViewModel by viewModels()
     private var wakeLock: PowerManager.WakeLock? = null
+
+    /**
+     * Single WebView instance owned by the Activity so the loaded page survives
+     * configuration changes and navigation instead of reloading.
+     */
+    private val retainedWebView = RetainedWebView()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +90,10 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     
-                    MainScreen(settingsViewModel = settingsViewModel)
+                    MainScreen(
+                        settingsViewModel = settingsViewModel,
+                        retainedWebView = retainedWebView
+                    )
                 }
             }
         }
@@ -119,6 +129,14 @@ class MainActivity : ComponentActivity() {
     
     override fun onDestroy() {
         super.onDestroy()
+        // Rotation and other common configuration changes are declared in the manifest's
+        // configChanges, so onDestroy here only runs when the Activity actually finishes.
+        retainedWebView.webView?.let { webView ->
+            (webView.parent as? android.view.ViewGroup)?.removeView(webView)
+            webView.destroy()
+            Log.i(TAG, "Retained WebView destroyed")
+        }
+        retainedWebView.webView = null
         // Release wake lock when activity is destroyed
         wakeLock?.let {
             if (it.isHeld) {

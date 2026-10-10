@@ -22,6 +22,7 @@ Internet → Raspberry Pi (Moode) → DAC → Amplifier → HiFi Speakers
   - Optimized cache settings for audio streaming stability
   - Safe Browsing enabled for security (Android 8.0+)
   - Wake lock to maintain stable connection to Moode server
+  - Page is retained (no reload) across screen rotation, opening the Settings screen, and brief backgrounding/screen unlock
 * **Automatic mDNS resolution**: Enter `moode.local` and the app automatically discovers your Moode server on the network
 * Hardware volume button control (volume up/down buttons adjust Moode volume)
 * Connection status indicator in the top bar:
@@ -73,6 +74,7 @@ app/
 ├── ui/                       # Presentation layer (Jetpack Compose)
 │   ├── MainScreen           # Main navigation and top bar
 │   ├── WebViewContent       # Moode Audio WebView
+│   ├── RetainedWebView      # Activity-scoped holder keeping the page alive
 │   └── PreferenceComposables # Settings screen
 └── viewmodel/               # ViewModels with StateFlow
     └── SettingsViewModel    # Settings and connection management
