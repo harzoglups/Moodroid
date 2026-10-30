@@ -1,19 +1,34 @@
 package com.moode.android.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
 import android.util.Log
+import android.view.ViewGroup
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -26,29 +41,56 @@ import com.moode.android.MainActivity
 import com.moode.android.R
 import com.moode.android.viewmodel.SettingsViewModel
 
-@SuppressLint("SetJavaScriptEnabled")
-@Composable
-fun WebViewContent(settingsViewModel: SettingsViewModel) {
-    val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
-    val resolvedUrl by settingsViewModel.resolvedUrl.collectAsStateWithLifecycle()
-    val displayUrl = settings.url.ifEmpty { context.getString(R.string.url) }
-    // Use resolved URL for WebView, fall back to display URL if resolution hasn't completed yet
-    val url = resolvedUrl ?: displayUrl
-    var webView by remember { mutableStateOf<WebView?>(null) }
-    var loading by remember { mutableStateOf(true) }
-    var currentUrl by remember { mutableStateOf(url) }
+/**
+ * Owns the WebView showing the Moode web UI.
+ *
+ * It lives above the navigation graph (see [MainScreen]) so that navigating to the settings
+ * screen and back does not destroy the WebView and reload the page.
+ */
+class MoodeWebViewHolder(private val context: Context) {
+    var loading: Boolean by mutableStateOf(true)
+        private set
 
-    fun createWebView(initialUrl: String): WebView {
+    private var loadedUrl: String? = null
+
+    var webView: WebView by mutableStateOf(createWebView())
+        private set
+
+    /** Loads [url] unless it is already the page being displayed. */
+    fun loadIfChanged(url: String) {
+        if (url == loadedUrl) return
+        Log.i(MainActivity.TAG, "Loading URL: $url (previous: $loadedUrl)")
+        loadedUrl = url
+        loading = true
+        webView.loadUrl(url)
+    }
+
+    fun reload() {
+        loading = true
+        webView.reload()
+    }
+
+    fun onPause() {
+        webView.onPause()
+        webView.pauseTimers()
+    }
+
+    fun onResume() {
+        webView.onResume()
+        webView.resumeTimers()
+    }
+
+    fun destroy() {
+        Log.i(MainActivity.TAG, "Destroying WebView")
+        webView.destroy()
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun createWebView(): WebView {
         return WebView(context).apply {
-            // Enable hardware acceleration for better rendering and audio performance
+            // Enable hardware acceleration for better rendering
             setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
-            
-            // Keep screen on during audio playback to prevent network issues
-            keepScreenOn = false // We use wake lock instead to save battery
-            
+
             webViewClient = object : WebViewClient() {
                 override fun onPageStarted(
                     view: WebView?,
@@ -62,9 +104,7 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    val progress = view?.progress
-                    Log.d(MainActivity.TAG, "onPageFinished - Progress = $progress, URL = $url")
-                    // Always set loading to false when page finishes, regardless of progress
+                    Log.d(MainActivity.TAG, "onPageFinished - Progress = ${view?.progress}, URL = $url")
                     loading = false
                 }
 
@@ -74,7 +114,7 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                     error: WebResourceError?
                 ) {
                     super.onReceivedError(view, request, error)
-                    // Only set loading to false if this is the main frame
+                    // Only stop the spinner if this is the main frame
                     if (request?.isForMainFrame == true) {
                         loading = false
                         Log.e(MainActivity.TAG, "onReceivedError (main frame) - Error: ${error?.description}")
@@ -88,13 +128,12 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                     detail: RenderProcessGoneDetail?
                 ): Boolean {
                     Log.e(MainActivity.TAG, "onRenderProcessGone: $detail")
-                    (context as? MainActivity)?.let { activity ->
-                        activity.runOnUiThread {
-                            view?.destroy()
-                            webView = createWebView(initialUrl)
-                            webView?.loadUrl(initialUrl)
-                        }
-                    }
+                    // Recreate the WebView and reload the last requested URL
+                    view?.destroy()
+                    val urlToRestore = loadedUrl
+                    loadedUrl = null
+                    webView = createWebView()
+                    urlToRestore?.let { loadIfChanged(it) }
                     return true
                 }
             }
@@ -103,15 +142,10 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                 loadWithOverviewMode = true
                 useWideViewPort = true
                 domStorageEnabled = true
-                
-                // Use default cache mode for audio streaming - LOAD_CACHE_ELSE_NETWORK can cause issues
                 cacheMode = WebSettings.LOAD_DEFAULT
-                
-                // Enable Safe Browsing for security
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     safeBrowsingEnabled = true
                 }
-                
                 mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 userAgentString = WebSettings.getDefaultUserAgent(context)
                 databaseEnabled = true
@@ -122,37 +156,34 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
                 allowFileAccess = true
                 javaScriptCanOpenWindowsAutomatically = true
                 loadsImagesAutomatically = true
-                
-                // Optimize for media streaming
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    // Disable offscreen pre-rasterization to save memory and improve streaming
-                    offscreenPreRaster = false
-                }
-                
-                // Set appropriate block network loads setting for streaming
+                offscreenPreRaster = false
                 blockNetworkLoads = false
             }
-            layoutParams = android.view.ViewGroup.LayoutParams(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
     }
+}
 
-    // Handle URL changes
+@Composable
+fun WebViewContent(
+    holder: MoodeWebViewHolder,
+    settingsViewModel: SettingsViewModel
+) {
+    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val resolvedUrl by settingsViewModel.resolvedUrl.collectAsStateWithLifecycle()
+    val displayUrl = settings.url.ifEmpty { context.getString(R.string.url) }
+    // Use resolved URL for WebView, fall back to display URL if resolution hasn't completed yet
+    val url = resolvedUrl ?: displayUrl
+
+    // No-op when returning from the settings screen with an unchanged URL
     LaunchedEffect(url) {
-        if (url != currentUrl) {
-            Log.i(MainActivity.TAG, "URL changed from $currentUrl to $url")
-            currentUrl = url
-            loading = true
-            webView?.loadUrl(url)
-        }
-    }
-
-    // Initialize WebView only once
-    if (webView == null) {
-        webView = createWebView(url)
-        webView?.loadUrl(url)
+        holder.loadIfChanged(url)
     }
 
     Scaffold(
@@ -160,8 +191,7 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
             FloatingActionButton(
                 onClick = {
                     Log.i(MainActivity.TAG, "Refreshing URL $url")
-                    loading = true
-                    webView?.reload()
+                    holder.reload()
                 },
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 modifier = Modifier.offset(
@@ -178,24 +208,16 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
         },
         content = { pv ->
             Box(modifier = Modifier.fillMaxSize()) {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(pv),
-                    factory = {
-                        Log.i(MainActivity.TAG, "AndroidView factory creating WebView for URL: $url")
-                        webView ?: createWebView(url).also { 
-                            webView = it
-                            it.loadUrl(url)
-                        }
-                    },
-                    update = {
-                        // Do NOT reload here - this is called on every recomposition
-                        // URL changes are handled by LaunchedEffect above
-                        Log.d(MainActivity.TAG, "AndroidView update block (no action taken)")
-                    }
-                )
-                if (loading) {
+                // key: swap the AndroidView if the holder had to recreate the WebView
+                key(holder.webView) {
+                    AndroidView(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(pv),
+                        factory = { holder.webView }
+                    )
+                }
+                if (holder.loading) {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -206,12 +228,4 @@ fun WebViewContent(settingsViewModel: SettingsViewModel) {
             }
         }
     )
-
-    DisposableEffect(Unit) {
-        onDispose {
-            Log.i(MainActivity.TAG, "Disposing WebView")
-            webView?.destroy()
-            webView = null
-        }
-    }
 }

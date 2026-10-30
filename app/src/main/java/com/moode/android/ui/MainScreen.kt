@@ -1,6 +1,5 @@
 package com.moode.android.ui
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -24,14 +23,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -47,12 +52,30 @@ enum class MoodroidScreens(@StringRes val title: Int) {
     SETTINGS(R.string.settings_views_title)
 }
 
-@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun MainScreen(
     navController: NavHostController = rememberNavController(),
     settingsViewModel: SettingsViewModel
 ) {
+    // The WebView outlives navigation between screens: it is only destroyed when MainScreen leaves
+    val context = LocalContext.current
+    val webViewHolder = remember { MoodeWebViewHolder(context) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, webViewHolder) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> webViewHolder.onPause()
+                Lifecycle.Event.ON_RESUME -> webViewHolder.onResume()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            webViewHolder.destroy()
+        }
+    }
+
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
@@ -78,7 +101,7 @@ fun MainScreen(
                 .padding(innerPadding)
         ) {
             composable(MoodroidScreens.MAIN.name) {
-                WebViewContent(settingsViewModel = settingsViewModel)
+                WebViewContent(holder = webViewHolder, settingsViewModel = settingsViewModel)
             }
             composable(MoodroidScreens.SETTINGS.name) {
                 PreferenceScreen(settingsViewModel = settingsViewModel)

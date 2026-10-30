@@ -21,7 +21,7 @@ Internet → Raspberry Pi (Moode) → DAC → Amplifier → HiFi Speakers
   - Hardware acceleration enabled for smooth rendering
   - Optimized cache settings for audio streaming stability
   - Safe Browsing enabled for security (Android 8.0+)
-  - Wake lock to maintain stable connection to Moode server
+  - WebView is kept alive when opening Settings and paused while the app is in the background
 * **Automatic mDNS resolution**: Enter `moode.local` and the app automatically discovers your Moode server on the network
 * Hardware volume button control (volume up/down buttons adjust Moode volume; holding a key repeats at a throttled rate, and the keys fall back to the phone volume while the server is unreachable)
 * Connection status indicator in the top bar:

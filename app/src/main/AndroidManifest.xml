@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
 
@@ -17,12 +16,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MoodeAndroid"
         android:usesCleartextTraffic="true"
-        android:configChanges="orientation|screenSize"
-
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
             android:theme="@style/Theme.MoodeAndroid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

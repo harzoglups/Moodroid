@@ -35,14 +35,14 @@ Moodroid is built using **Clean Architecture** with clear separation between dom
 └──────────────────────────────────────────────────────────────┘
 ```
 
-### Audio Streaming Optimizations
+### WebView Lifecycle
 
-The app includes wake lock and WebView optimizations for audio streaming stability:
+The app does not play audio itself, so it holds no wake lock:
 
-- **Wake Lock**: Prevents Android from putting WiFi/CPU to sleep
-- **Purpose**: Maintains stable HTTP/WebSocket connection to Moode server
-- **Impact**: Keeps the web interface responsive and connection indicator accurate
-- **Note**: These optimizations affect the control interface stability, NOT the audio playback itself (which happens on the Raspberry Pi)
+- **Persistence**: The WebView is owned by `MoodeWebViewHolder`, created in `MainScreen` above the navigation graph, so opening Settings and coming back does not reload the page
+- **Background**: The WebView is paused (`onPause` / `pauseTimers`) when the activity is paused, so the Moode web UI stops polling the server
+- **Rotation**: `configChanges` is declared on the activity, so rotating the device neither recreates the activity nor replays the splash screen
+- **Note**: Audio playback happens on the Raspberry Pi, not in the Android app
 
 ### Audio Format Considerations
 
