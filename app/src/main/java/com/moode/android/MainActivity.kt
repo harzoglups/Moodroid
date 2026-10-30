@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.moode.android.domain.model.ConnectionState
+import com.moode.android.domain.model.VolumeDirection
 import com.moode.android.ui.MainScreen
 import com.moode.android.ui.SplashScreen
 import com.moode.android.ui.theme.MoodeAndroidTheme
@@ -100,21 +101,20 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return when (keyCode) {
-            KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                Log.i(TAG, "onKeyDown: lowering volume")
-                settingsViewModel.sendVolumeCommand("dn")
-                true
-            }
-
-            KeyEvent.KEYCODE_VOLUME_UP -> {
-                Log.i(TAG, "onKeyDown: increasing volume")
-                settingsViewModel.sendVolumeCommand("up")
-                true
-            }
-
-            else -> super.onKeyDown(keyCode, event)
+        val direction = when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_DOWN -> VolumeDirection.DOWN
+            KeyEvent.KEYCODE_VOLUME_UP -> VolumeDirection.UP
+            else -> return super.onKeyDown(keyCode, event)
         }
+
+        // Server unreachable: let Android handle the keys (phone volume) instead of swallowing them
+        if (settingsViewModel.connectionStatus.value == ConnectionState.DISCONNECTED) {
+            return super.onKeyDown(keyCode, event)
+        }
+
+        Log.i(TAG, "onKeyDown: volume $direction")
+        settingsViewModel.sendVolumeCommand(direction, isRepeat = (event?.repeatCount ?: 0) > 0)
+        return true
     }
     
     override fun onDestroy() {

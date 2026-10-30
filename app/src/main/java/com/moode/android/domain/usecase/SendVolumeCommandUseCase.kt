@@ -1,6 +1,7 @@
 package com.moode.android.domain.usecase
 
 import com.moode.android.domain.model.Result
+import com.moode.android.domain.model.VolumeDirection
 import com.moode.android.domain.repository.MoodeRepository
 import javax.inject.Inject
 
@@ -10,7 +11,7 @@ import javax.inject.Inject
 class SendVolumeCommandUseCase @Inject constructor(
     private val moodeRepository: MoodeRepository
 ) {
-    suspend operator fun invoke(url: String, command: String, step: Int): Result<Unit> {
-        return moodeRepository.sendVolumeCommand(url, command, step)
+    suspend operator fun invoke(url: String, direction: VolumeDirection, step: Int): Result<Unit> {
+        return moodeRepository.sendVolumeCommand(url, direction, step)
     }
 }

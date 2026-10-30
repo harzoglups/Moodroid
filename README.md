@@ -23,7 +23,7 @@ Internet → Raspberry Pi (Moode) → DAC → Amplifier → HiFi Speakers
   - Safe Browsing enabled for security (Android 8.0+)
   - Wake lock to maintain stable connection to Moode server
 * **Automatic mDNS resolution**: Enter `moode.local` and the app automatically discovers your Moode server on the network
-* Hardware volume button control (volume up/down buttons adjust Moode volume)
+* Hardware volume button control (volume up/down buttons adjust Moode volume; holding a key repeats at a throttled rate, and the keys fall back to the phone volume while the server is unreachable)
 * Connection status indicator in the top bar:
   - Green dot: Connected to Moode server
   - Red dot: Connection failed or lost

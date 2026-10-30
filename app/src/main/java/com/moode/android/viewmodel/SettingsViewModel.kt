@@ -1,11 +1,13 @@
 package com.moode.android.viewmodel
 
+import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moode.android.domain.model.ConnectionState
 import com.moode.android.domain.model.Result
 import com.moode.android.domain.model.Settings
+import com.moode.android.domain.model.VolumeDirection
 import com.moode.android.domain.usecase.AddUrlToHistoryUseCase
 import com.moode.android.domain.usecase.ClearUrlHistoryUseCase
 import com.moode.android.domain.usecase.GetSettingsUseCase
@@ -44,8 +46,11 @@ class SettingsViewModel @Inject constructor(
     
     companion object {
         private const val TAG = "SettingsViewModel"
+        private const val VOLUME_REPEAT_INTERVAL_MS = 200L
     }
-    
+
+    private var lastVolumeCommandAt = 0L
+
     // Settings state
     val settings: StateFlow<Settings> = getSettingsUseCase()
         .stateIn(
@@ -143,18 +148,30 @@ class SettingsViewModel @Inject constructor(
         }
     }
     
-    fun sendVolumeCommand(command: String) {
+    /**
+     * Sends a volume command to the server.
+     * @param isRepeat true when the key is held down; such calls are throttled
+     */
+    fun sendVolumeCommand(direction: VolumeDirection, isRepeat: Boolean = false) {
         val currentSettings = settings.value
-        if (currentSettings.url.isEmpty()) {
+        // Use the mDNS-resolved URL: the system DNS often cannot resolve .local hostnames
+        val targetUrl = _resolvedUrl.value?.takeIf { it.isNotEmpty() } ?: currentSettings.url
+        if (targetUrl.isEmpty()) {
             Log.w(TAG, "sendVolumeCommand called with empty URL")
             return
         }
-        
-        Log.i(TAG, "Sending volume command: $command with step: ${currentSettings.volumeStep}")
+
+        val now = SystemClock.elapsedRealtime()
+        if (isRepeat && now - lastVolumeCommandAt < VOLUME_REPEAT_INTERVAL_MS) {
+            return
+        }
+        lastVolumeCommandAt = now
+
+        Log.i(TAG, "Sending volume command: $direction with step: ${currentSettings.volumeStep}")
         viewModelScope.launch {
             when (val result = sendVolumeCommandUseCase(
-                currentSettings.url,
-                command,
+                targetUrl,
+                direction,
                 currentSettings.volumeStep
             )) {
                 is Result.Success -> {
