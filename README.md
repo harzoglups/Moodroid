@@ -29,7 +29,8 @@ Internet → Raspberry Pi (Moode) → DAC → Amplifier → HiFi Speakers
   - Red dot: Connection failed or lost
   - Gray dot: Connection status unknown (initial state)
 * Modern Material3 Settings screen:
-  - URL history and favorites (up to 10 recent servers)
+  - URL history, most recently used first (up to 10 servers)
+  - URL and volume step fields are saved on Done or when the field loses focus
   - Quick access to previous Moode servers via dropdown
   - Clear history option
   - About section with feature list

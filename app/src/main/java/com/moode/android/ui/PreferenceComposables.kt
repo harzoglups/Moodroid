@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -64,10 +65,12 @@ fun TextPreference(
     errorMessage: String = "Invalid input",
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
-    var value by rememberSaveable { mutableStateOf(text) }
-    var isError by rememberSaveable { mutableStateOf(false) }
+    // Keyed on the stored value so the field follows external changes (e.g. picking a history entry)
+    var value by rememberSaveable(text) { mutableStateOf(text) }
+    var isError by rememberSaveable(text) { mutableStateOf(false) }
+    var hadFocus by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-    
+
     Row {
         OutlinedTextField(
             value = value,
@@ -120,7 +123,18 @@ fun TextPreference(
                 errorBorderColor = MaterialTheme.colorScheme.error,
                 errorLabelColor = MaterialTheme.colorScheme.error,
             ),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged { focusState ->
+                    // Save a valid, modified entry when the field loses focus
+                    if (hadFocus && !focusState.isFocused &&
+                        !isError && value.isNotEmpty() && value != text
+                    ) {
+                        updateSetting(value)
+                        onDone?.invoke(value)
+                    }
+                    hadFocus = focusState.isFocused
+                },
         )
     }
 }
